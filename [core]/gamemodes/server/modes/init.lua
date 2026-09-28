@@ -168,9 +168,13 @@ function Gamemodes.getHandler(def)
 end
 
 ---@param mode GameMode
----@return GamemodeMap
+---@return GamemodeMap?
 function Gamemodes.pickMap(mode)
     local pool = pools.get(mode)
+
+    if #pool == 0 then
+        return nil
+    end
 
     return pool[math.random(#pool)]
 end

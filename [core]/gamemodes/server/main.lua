@@ -198,6 +198,10 @@ lib.callback.register('gamemodes:server:enterPreview', function(source, instance
     -- player previews one arena and spawns into another.
     local map = instance and instance.map or Gamemodes.pickMap(mode)
 
+    if not map then
+        return nil, ('%s has no maps set up yet.'):format(mode)
+    end
+
     previewing[source] = { portalId = portalId, map = map }
 
     return {
@@ -230,6 +234,10 @@ lib.callback.register('gamemodes:server:enterMode', function(source, portalId)
     end
 
     local preview = previewing[source]
+
+    if not instance and not (preview and preview.map) and not Gamemodes.pickMap(mode) then
+        return nil, ('%s has no maps set up yet.'):format(mode)
+    end
 
     if not instance then
         -- Carry the previewed map across so the arena you were just looking at

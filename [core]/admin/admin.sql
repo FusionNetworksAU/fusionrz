@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `admin_reports` (
     `description`    VARCHAR(1024) NOT NULL DEFAULT '',
     `resolved_at`    DATETIME      DEFAULT NULL,
     `resolved_by`    VARCHAR(64)   DEFAULT NULL,
+    `resolved_by_user_id` INT UNSIGNED DEFAULT NULL,
     `created_at`     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `admin_reports_user` (`user_id`),
