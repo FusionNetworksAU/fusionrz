@@ -22,14 +22,7 @@ local function openMenu()
 
     isVisible = true
 
-    SetHudHiddenByMenu(true)
-
-    CreateThread(function()
-        while isVisible do
-            HideHudAndRadarThisFrame()
-            Wait(0)
-        end
-    end)
+    SetHudHiddenByMenu('kmenu', true)
 
     core:Subscribe('teleportCounts')
     core:Subscribe('gamemodePortalCounts')
@@ -54,7 +47,7 @@ local function closeMenu()
 
     isVisible = false
 
-    SetHudHiddenByMenu(false)
+    SetHudHiddenByMenu('kmenu', false)
 
     core:Unsubscribe('teleportCounts')
     core:Unsubscribe('gamemodePortalCounts')

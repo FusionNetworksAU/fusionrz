@@ -44,6 +44,8 @@ local function openPauseMenu(isVisible)
 
     isPauseVisible = isVisible
 
+    SetHudHiddenByMenu('pause', isVisible)
+
     RefreshMinimapRadarVisibility()
 end
 

@@ -1,11 +1,3 @@
-/*
- * FNRZ blue theme — Esc (pause) menu + K menu.
- * Hooks: [data-fnrz-menu="pause" | "k"] on the menu roots, fnrz-* classes on
- * the nav pieces (patched into index-fnrz-20260929a.js).
- * Rollback: point web/build/index.html back at index-fnrz-20260928e.js and
- * drop the fnrz-theme.css <link>.
- */
-
 :root {
     --fz-blue: #2695fc;
     --fz-blue-hover: #3a9ffc;
@@ -15,8 +7,6 @@
     --fz-line: rgba(255, 255, 255, 0.08);
 }
 
-/* ---------- Backdrop ---------- */
-
 .fnrz-bg {
     background: linear-gradient(180deg, rgba(6, 12, 24, 0.82) 0%, rgba(6, 12, 24, 0.9) 100%);
 }
@@ -25,7 +15,11 @@
     background: #070d19;
 }
 
-/* ---------- Top nav ---------- */
+[data-fnrz-menu="pause"].fnrz-bg {
+    background:
+        linear-gradient(180deg, rgba(6, 12, 24, 0.7) 0%, rgba(6, 12, 24, 0) 18%),
+        linear-gradient(90deg, rgba(6, 12, 24, 0.96) 0%, rgba(6, 12, 24, 0.94) 38%, rgba(6, 12, 24, 0.7) 62%, rgba(6, 12, 24, 0.45) 100%);
+}
 
 .fnrz-topnav:not([data-hud-editor-top-nav])::after {
     content: "";
@@ -97,7 +91,37 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* ---------- Pause header ---------- */
+
+/* the oversized faded "PAUSE" behind the title */
+[data-fnrz-menu="pause"] .fnrz-topnav .text-\[6rem\] {
+    display: none;
+}
+
+[data-fnrz-menu="pause"] .fnrz-tabs {
+    height: 2.125rem;
+}
+
+/* store link + coin balance: drop the double blue outline, match the tab bar */
+[data-fnrz-menu="pause"] .fnrz-topnav .border-\[\#2695FC\] {
+    border-color: var(--fz-line);
+    background: var(--fz-surface);
+}
+
+[data-fnrz-menu="pause"] .fnrz-topnav .bg-\[rgba\(38\,149\,252\,0\.20\)\] {
+    background: transparent;
+}
+
 /* ---------- Inner pages: retint neutral greys to navy ---------- */
+
+/* light value chips (e.g. store refresh countdown) */
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.60\)\] {
+    background-color: rgba(38, 149, 252, 0.16);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.60\)\] .text-\[\#0A090E\] {
+    color: var(--fz-text);
+}
 
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.08\)\],
 [data-fnrz-menu] .bg-\[\#FFFFFF14\] {
