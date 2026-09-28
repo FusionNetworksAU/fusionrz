@@ -1,0 +1,261 @@
+/*
+ * FNRZ blue theme — Esc (pause) menu + K menu.
+ * Hooks: [data-fnrz-menu="pause" | "k"] on the menu roots, fnrz-* classes on
+ * the nav pieces (patched into index-fnrz-20260929a.js).
+ * Rollback: point web/build/index.html back at index-fnrz-20260928e.js and
+ * drop the fnrz-theme.css <link>.
+ */
+
+:root {
+    --fz-blue: #2695fc;
+    --fz-blue-hi: #4fb0ff;
+    --fz-blue-lo: #1a74d6;
+    --fz-ice: #d6eaff;
+    --fz-muted: #8ea8c9;
+    --fz-navy-0: rgba(3, 9, 20, 0.92);
+    --fz-navy-1: rgba(7, 18, 38, 0.78);
+    --fz-panel: rgba(10, 26, 52, 0.72);
+    --fz-line: rgba(96, 170, 255, 0.2);
+    --fz-line-hi: rgba(120, 190, 255, 0.55);
+    --fz-glow: rgba(38, 149, 252, 0.45);
+}
+
+/* ---------- Backdrop ---------- */
+
+.fnrz-bg {
+    background:
+        radial-gradient(60rem 32rem at 10% -12%, rgba(38, 149, 252, 0.3), transparent 62%),
+        radial-gradient(52rem 30rem at 102% 112%, rgba(18, 92, 210, 0.32), transparent 62%),
+        linear-gradient(90deg, var(--fz-navy-0) 0%, var(--fz-navy-1) 38%, var(--fz-navy-1) 62%, var(--fz-navy-0) 100%),
+        linear-gradient(180deg, rgba(3, 8, 18, 0.55) 0%, rgba(3, 8, 18, 0.88) 100%);
+}
+
+.fnrz-bg--solid {
+    background:
+        radial-gradient(60rem 32rem at 10% -12%, rgba(38, 149, 252, 0.28), transparent 62%),
+        radial-gradient(52rem 30rem at 102% 112%, rgba(18, 92, 210, 0.3), transparent 62%),
+        linear-gradient(180deg, #06101f 0%, #040a16 100%);
+}
+
+/* subtle blueprint grid, faded toward the centre */
+.fnrz-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(96, 170, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96, 170, 255, 0.05) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+    -webkit-mask-image: radial-gradient(ellipse at center, transparent 35%, #000 100%);
+    mask-image: radial-gradient(ellipse at center, transparent 35%, #000 100%);
+}
+
+/* thin accent strip on the top edge */
+.fnrz-bg::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--fz-blue) 25%, var(--fz-blue-hi) 50%, var(--fz-blue) 75%, transparent);
+    box-shadow: 0 0 18px var(--fz-glow);
+}
+
+/* ---------- Top nav ---------- */
+
+.fnrz-topnav:not([data-hud-editor-top-nav])::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1.15rem;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(96, 170, 255, 0.5), rgba(96, 170, 255, 0.18) 45%, rgba(96, 170, 255, 0.18) 55%, rgba(96, 170, 255, 0.5));
+}
+
+.fnrz-tabs {
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border: 1px solid var(--fz-line);
+    border-radius: 0.6rem;
+    background: linear-gradient(180deg, rgba(16, 38, 74, 0.78) 0%, rgba(8, 20, 42, 0.78) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0.5rem 1.5rem rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+}
+
+[data-fnrz-menu="pause"] .fnrz-tabs {
+    height: 2.375rem;
+}
+
+.fnrz-tab {
+    position: relative;
+    border-radius: 0.42rem;
+    color: var(--fz-muted);
+    letter-spacing: 0.04em;
+    transition: color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fnrz-tab:hover:enabled {
+    color: #fff;
+    background-color: rgba(38, 149, 252, 0.16);
+}
+
+.fnrz-tab.is-active,
+.fnrz-tab.is-active:hover:enabled {
+    color: #fff;
+    background: linear-gradient(180deg, #3aa2ff 0%, var(--fz-blue-lo) 100%);
+    box-shadow: inset 0 0 0 1px var(--fz-line-hi), 0 0.25rem 1rem var(--fz-glow);
+}
+
+.fnrz-key {
+    border: 1px solid var(--fz-line);
+    border-radius: 0.5rem;
+    background: var(--fz-panel);
+    color: var(--fz-ice);
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fnrz-key.is-active {
+    border-color: var(--fz-line-hi);
+    background: var(--fz-blue);
+    color: #fff;
+    box-shadow: 0 0 0.9rem var(--fz-glow);
+}
+
+.fnrz-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    color: var(--fz-blue);
+    text-shadow: 0 0 1.1rem var(--fz-glow);
+}
+
+.fnrz-brand-sub {
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    color: var(--fz-ice);
+    opacity: 0.7;
+    text-shadow: none;
+}
+
+.fnrz-divider {
+    background: rgba(96, 170, 255, 0.4);
+}
+
+.fnrz-avatar {
+    border: 1px solid var(--fz-line-hi);
+    box-shadow: 0 0 0 2px rgba(38, 149, 252, 0.15), 0 0 0.9rem rgba(38, 149, 252, 0.35);
+}
+
+/* ---------- Pause heading ---------- */
+
+.fnrz-pause-title {
+    text-shadow: 0 0 1.5rem var(--fz-glow);
+}
+
+.fnrz-pause-sub {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.55rem;
+    white-space: nowrap;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--fz-blue-hi);
+}
+
+.fnrz-pause-sub::before {
+    content: "";
+    width: 1.25rem;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--fz-blue);
+    box-shadow: 0 0 0.5rem var(--fz-glow);
+}
+
+/* ---------- Inner pages: retint neutral greys to navy/blue ---------- */
+
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.08\)\],
+[data-fnrz-menu] .bg-\[\#FFFFFF14\] {
+    background-color: rgba(64, 150, 255, 0.1);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.06\)\],
+[data-fnrz-menu] .bg-white\/5 {
+    background-color: rgba(64, 150, 255, 0.08);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.04\)\],
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.03\)\] {
+    background-color: rgba(64, 150, 255, 0.06);
+}
+
+[data-fnrz-menu] .bg-white\/10,
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.10\)\],
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.12\)\] {
+    background-color: rgba(64, 150, 255, 0.14);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(216\,216\,216\,0\.20\)\] {
+    background-color: rgba(96, 170, 255, 0.2);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(38\,32\,36\,0\.65\)\] {
+    background-color: rgba(9, 22, 44, 0.72);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(38\,32\,36\,0\.88\)\] {
+    background-color: rgba(8, 20, 40, 0.9);
+}
+
+[data-fnrz-menu] .bg-\[rgba\(38\,32\,36\,0\.98\)\],
+[data-fnrz-menu] .bg-\[rgba\(10\,9\,14\,0\.98\)\],
+[data-fnrz-menu] .bg-\[\#0A0A0A\] {
+    background-color: #07111f;
+}
+
+[data-fnrz-menu] .border-\[rgba\(216\,216\,216\,0\.20\)\],
+[data-fnrz-menu] .border-\[rgba\(208\,208\,208\,0\.20\)\],
+[data-fnrz-menu] .border-\[rgba\(255\,255\,255\,0\.16\)\],
+[data-fnrz-menu] .border-\[rgba\(255\,255\,255\,0\.12\)\],
+[data-fnrz-menu] .border-\[\#D8D8D833\],
+[data-fnrz-menu] .border-white\/10,
+[data-fnrz-menu] .border-white\/20 {
+    border-color: var(--fz-line);
+}
+
+/* white "selected" pills used by sub-tabs across pages → blue */
+[data-fnrz-menu] .bg-white.text-black,
+[data-fnrz-menu] .bg-white.text-\[\#0A090E\] {
+    background: linear-gradient(180deg, #3aa2ff 0%, var(--fz-blue-lo) 100%);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px var(--fz-line-hi);
+}
+
+[data-fnrz-menu] .enabled\:hover\:bg-white:hover:enabled {
+    background-color: rgba(38, 149, 252, 0.85);
+}
+
+[data-fnrz-menu] .enabled\:hover\:text-black:hover:enabled,
+[data-fnrz-menu] .enabled\:hover\:text-\[\#0A090E\]:hover:enabled {
+    color: #fff;
+}
+
+/* scrollbars */
+[data-fnrz-menu] ::-webkit-scrollbar-thumb {
+    background: rgba(38, 149, 252, 0.45);
+    border-radius: 999px;
+}
+
+[data-fnrz-menu] ::-webkit-scrollbar-track {
+    background: rgba(64, 150, 255, 0.06);
+}
