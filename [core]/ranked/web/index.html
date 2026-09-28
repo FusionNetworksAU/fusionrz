@@ -1,0 +1,91 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #000;
+			}
+
+			#media {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				pointer-events: none;
+			}
+		</style>
+		<script>
+			const VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov', 'ogv', 'm4v'];
+
+			function isVideoSource(src) {
+				const path = src.split('?')[0].split('#')[0];
+				const extension = path.substring(path.lastIndexOf('.') + 1).toLowerCase();
+				return VIDEO_EXTENSIONS.includes(extension);
+			}
+
+			function setSource(src, type) {
+				const existing = document.getElementById('media');
+				if (existing) {
+					existing.remove();
+				}
+
+				if (!src) {
+					return;
+				}
+
+				const isVideo = type ? type === 'video' : isVideoSource(src);
+				let element;
+
+				if (isVideo) {
+					element = document.createElement('video');
+					element.autoplay = true;
+					element.loop = true;
+					element.muted = true;
+					element.defaultMuted = true;
+					element.playsInline = true;
+					element.controls = false;
+					element.disablePictureInPicture = true;
+					element.preload = 'auto';
+					element.setAttribute('muted', '');
+					element.setAttribute('playsinline', '');
+					element.addEventListener('ended', () => {
+						element.currentTime = 0;
+						element.play();
+					});
+					element.addEventListener('canplay', () => {
+						element.play().catch(() => {});
+					});
+				} else {
+					element = document.createElement('img');
+					element.draggable = false;
+				}
+
+				element.id = 'media';
+				element.src = src;
+				document.body.appendChild(element);
+
+				if (isVideo) {
+					element.play().catch(() => {});
+				}
+			}
+
+			window.addEventListener('message', (event) => {
+				if (event.data && event.data.type === 'setSource') {
+					setSource(event.data.src, event.data.mediaType);
+				}
+			});
+
+			window.addEventListener('DOMContentLoaded', () => {
+				const params = new URLSearchParams(window.location.search);
+				setSource(params.get('src'), params.get('type'));
+			});
+		</script>
+	</head>
+	<body></body>
+</html>

@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+        <script>
+            window.addEventListener("message", (event) => {
+                if (event.data.type === "setIconColor") {
+                    document.getElementById("icon-border").style.borderColor = event.data.color;
+                    document.getElementById("icon-circle").style.backgroundColor = event.data.color;
+                }
+            });
+        </script>
+	</head>
+	<body style="background: transparent !important; overflow: hidden;" >
+        <div id="icon-border" style="width: 1rem; height: 1rem; border: solid; border-color: #FF0000; transform: rotate(45deg); display: flex; justify-content: center; align-items: center; border-width: 0.25rem;">
+            <div id="icon-circle" style="width: 0.25rem; height: 0.25rem; background-color: #FF0000; border-radius: 100%;"></div>
+        </div>
+	</body>
+</html>

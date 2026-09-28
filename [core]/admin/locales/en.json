@@ -1,0 +1,22 @@
+{
+  "reject": "You are banned from FNRZ.\n\nBan ID: %s\nExpires: %s\n\nReason: %s\n\nOpen a ban appeal ticket in our discord if you feel this was a mistake.\n\n%s",
+  "kicked": "You have been kicked from FNRZ.\n\nReason: %s\n\nOpen a ticket in our discord if you feel this was a mistake.\n\n%s",
+  "banned": "You have been banned from FNRZ.\n\nBan ID: %s\nExpires: %s\n\nReason: %s\n\nOpen a ban appeal ticket in our discord if you feel this was a mistake.\n\n%s",
+
+  "no_waypoint_set": "No waypoint set",
+  "no_perms": "You do not have this permission",
+  "no_saved_coords": "No previous coords saved",
+  "coords_copied": "Coords copied to clipboard",
+  "spectate_failed": "Failed to resolve the target! Exiting spectate",
+  "spectate_yourself": "You cannot spectate yourself",
+  "spectate_cycle_failed": "There are no players to cycle to",
+  "teleported_to_player": "Teleported to target player",
+  "teleported_player": "Player has been teleported to you",
+  "teleported": "You have been teleported by a staff member",
+  "teleport_busy": "Player cannot be teleported at the moment",
+  "player_frozen": "Target player has been frozen",
+  "player_unfrozen": "Target player has been unfrozen",
+
+  "nametags_enabled": "Nametags Enabled",
+  "nametags_disabled": "Nametags Disabled"
+}

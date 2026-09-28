@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./favicon.ico" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-tsrouter-app"
+    />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>FNRZ - UI</title>
+    <script>
+      (function () {
+        var mounted = false;
+        var reported = false;
+        var MAX_REMOUNTS = 3;
+        var WINDOW_MS = 60000;
+        var remounts = [];
+        var BUNDLE = './assets/index-fnrz-20260928e.js';
+
+        function watchForMount() {
+          mounted = false;
+
+          var watch = setInterval(function () {
+            var app = document.getElementById('app');
+
+            if (app && app.childElementCount > 0) {
+              mounted = true;
+              reported = false;
+              clearInterval(watch);
+            }
+          }, 250);
+        }
+
+        watchForMount();
+
+        function remount() {
+          var script = document.createElement('script');
+
+          script.type = 'module';
+          script.crossOrigin = '';
+          script.src = BUNDLE + '?remount=' + Date.now();
+
+          document.head.appendChild(script);
+          watchForMount();
+        }
+
+        function onError(detail) {
+          if (reported || !mounted) return;
+
+          setTimeout(function () {
+            var app = document.getElementById('app');
+
+            if (reported || (app && app.childElementCount > 0)) return;
+
+            reported = true;
+
+            var now = Date.now();
+
+            remounts = remounts.filter(function (t) { return now - t < WINDOW_MS; });
+
+            var willRemount = remounts.length < MAX_REMOUNTS;
+
+            try {
+              fetch('https://' + GetParentResourceName() + '/uiCrashed', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify({ message: String(detail || 'unknown error'), reloading: willRemount }),
+              });
+            } catch (e) {}
+
+            if (!willRemount) return;
+
+            remounts.push(now);
+
+            setTimeout(remount, 300);
+          }, 100);
+        }
+
+        window.addEventListener('error', function (event) {
+          onError((event.error && event.error.stack) || event.message);
+        });
+
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason;
+          onError((reason && reason.stack) || reason);
+        });
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-fnrz-20260928e.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-fnrz-20260928e.css">
+  </head>
+  <body>
+    <div id="app"></div>
+
+  </body>
+</html>

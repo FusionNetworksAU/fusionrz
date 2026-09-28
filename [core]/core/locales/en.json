@@ -1,0 +1,16 @@
+{
+  "loading": "Initiating connection... 🌐",
+  "restart": "Unable to join at this time. This server has a scheduled restart in 1 minute. You can connect once the restart is complete.",
+  "license_not_found": "Your Rockstar license was unable to be found. If you believe this is an error, restart your FiveM client and try again.",
+  "steam_not_found": "Your Steam account was unable to be found. If you believe this is an error, restart your FiveM client and try again.",
+  "duplicate_license": "Another player with the same Rockstar license (%s) as you was found in the server. Please make sure that nobody else is logged into your account.",
+  "checking_banlist": "Checking if you are banned... 🛡️",
+  "missing_ids_or_tokens": "Something went wrong during the connection process. Please reconnect and try again. ❗️",
+  "proceeding_to_queue": "Checking queue information... 🛬",
+  "connection_error": "An error occurred during the connection process. Please reconnect and try again. ❗️",
+  "username_taken": "This username is already in use.",
+  "username_profanity": "Username contains profanities. Please choose a different username.",
+  "no_user_found": "Something went wrong with your registration. Please reconnect and try again.",
+  "user_creation_failed": "User creation failed. Please wait a minute and try again.",
+  "duplicate_license_db": "Your Rockstar license (%s) already has an associated user. Please reconnect and try again."
+}
