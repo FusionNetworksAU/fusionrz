@@ -1374,7 +1374,7 @@ RegisterNetEvent('hopouts:client:matchEnd', function(data)
 
     ui:setMatchWinnerData({
         title = draw and 'DRAW' or won and 'VICTORY' or 'DEFEAT',
-        color = draw and '#B5B5B5' or won and '#2695FC' or '#E5484D',
+        color = draw and '#B5B5B5' or won and '#9738EA' or '#E5484D',
         players = winners,
     })
 

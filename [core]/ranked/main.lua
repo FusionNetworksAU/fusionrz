@@ -509,7 +509,7 @@ CreateThread(function()
                 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0,
                 (portal.radius or PORTAL_RADIUS) * 2.0, (portal.radius or PORTAL_RADIUS) * 2.0, 1.0,
-                38, 149, 252, 90,
+                151, 56, 234, 90,
                 false, false, 2, false, nil, nil, false
             )
 

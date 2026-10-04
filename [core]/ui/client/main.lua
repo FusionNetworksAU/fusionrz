@@ -119,11 +119,6 @@ AddEventHandler('core:onInventoryUpdated', function(affectedTypeIds)
 end)
 
 local uiHasCrashed = false
-
----Whether this page load has already been initialised. A plain local, not the
----uisReady statebag: a client-side statebag write goes via the server, so it
----does not read back true straight away, and every render in that window got
----past the guard and re-sent the data (665 "UI initialized" in one session).
 local pageInitialised = false
 
 local function pushInitialData()
@@ -174,10 +169,6 @@ end
 RegisterNUICallback('init', function(_, cb)
     cb(1)
 
-    -- The page calls `init` on every render of its root component, not once.
-    -- Only the first after a load (or after uiCrashed cleared uisReady) may do
-    -- anything: re-sending the data on every call re-rendered the page, which
-    -- called init again, and the loop flooded the bridge ("Failed to fetch").
     if pageInitialised then
         return
     end
@@ -186,7 +177,6 @@ RegisterNUICallback('init', function(_, cb)
 
     local reinit = uiHasCrashed
 
-    -- Local (non-replicated) write, so readers on this client see it at once.
     playerState:set('uisReady', true, false)
     TriggerEvent('uis:onReady')
 
@@ -211,7 +201,6 @@ RegisterNUICallback('uiCrashed', function(data, cb)
     cb(1)
 
     uiHasCrashed = true
-    -- The reloaded page will call init again; let that one through.
     pageInitialised = false
     playerState:set('uisReady', false, false)
 

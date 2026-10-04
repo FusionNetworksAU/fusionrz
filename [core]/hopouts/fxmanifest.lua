@@ -9,7 +9,6 @@ client_script '@core/base/client/init.lua'
 
 shared_script '@ox_lib/init.lua'
 
-client_script '@devmenu/client/warmenu.lua'
 client_script 'main.lua'
 -- Shims for exports this base does not implement; see compat.lua.
 client_script 'compat.lua'

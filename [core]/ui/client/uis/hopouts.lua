@@ -422,7 +422,7 @@ local function setMatchWinnerData(data)
         action = 'setMatchWinnerData',
         data = {
             title = tostring(data.title or 'MATCH OVER'),
-            color = data.color or '#2695FC',
+            color = data.color or '#9738EA',
             players = players,
             bannerTopRem = tonumber(data.bannerTopRem),
         },

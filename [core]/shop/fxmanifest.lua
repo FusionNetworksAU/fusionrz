@@ -25,7 +25,6 @@ server_scripts {
     'shared/tattoos.lua',
 }
 
-client_script '@devmenu/client/warmenu.lua'
 client_script 'main.lua'
 -- Shims for exports this base does not implement; see compat.lua.
 client_script 'compat.lua'

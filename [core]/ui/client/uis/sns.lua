@@ -87,7 +87,7 @@ RegisterNUICallback('leaveSns', function(_, cb)
 
     setSnsMenuVisible(false)
 
-    local left = exports.sns:leave()
+    local left = GetResourceState('sns') == 'started' and exports.sns:leave()
     if not left then
         exports.ui:notify({ type = 'error', text = 'Failed to leave Shooting & Scenes' })
     end

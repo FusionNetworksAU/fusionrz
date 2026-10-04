@@ -134,5 +134,17 @@ lib.addCommand('givecard', {
 }, function(source, args)
     apply(args.target, args.card)
 
-    TriggerClientEvent('chat:addMessage', source, { args = { 'callingcards', ('Set %s.'):format(args.card) } })
+    local text = ('Set calling card %s on %s.'):format(args.card, args.target)
+
+    -- Run from the server console there is no player to tell.
+    if source == 0 then
+        return print(('[callingcards] %s'):format(text))
+    end
+
+    TriggerClientEvent('gamechat:addMessage', source, {
+        username = 'SERVER',
+        userId = 0,
+        modeId = 'announcement',
+        text = text,
+    })
 end)

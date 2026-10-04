@@ -31,7 +31,13 @@ local isWatermarkEnabled = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.water
 local isVitalsEnabled = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.showHud, 'true') == 'true'
 local isKillfeedEnabled = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.killfeed, 'true') == 'true'
 local hudLocation = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.hudLocation, 'bottom-center')
-local healthColor = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.healthColor, '#2695FC')
+local DEFAULT_HEALTH_COLOR = '#9738EA'
+local healthColor = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.healthColor, DEFAULT_HEALTH_COLOR)
+
+-- '#2695FC' was the default before the purple retheme; anyone still on it moves to the new default.
+if type(healthColor) == 'string' and healthColor:upper() == '#2695FC' then
+    healthColor = DEFAULT_HEALTH_COLOR
+end
 local armorColor = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.armorColor, '#FFF')
 local isMicEnabled = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.mic, 'true') == 'true'
 local isKillTextEnabled = utils.safeGetKvp(GetResourceKvpString, KVP_KEYS.killText, 'true') == 'true'

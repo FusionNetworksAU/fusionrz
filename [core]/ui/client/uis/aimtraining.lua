@@ -53,7 +53,7 @@ end
 
 RegisterNUICallback('enterAimTrainingMap', function(data, cb)
     cb(1)
-    if IsMenuVisible() then
+    if IsMenuVisible() and GetResourceState('aimtraining') == 'started' then
         aimtraining:enterMode(data.label, data.isTraining)
     end
 end)

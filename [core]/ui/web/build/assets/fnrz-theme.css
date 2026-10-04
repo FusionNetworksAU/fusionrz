@@ -1,24 +1,38 @@
+/*
+ * FNRZ purple theme for the Esc (pause) and K menus.
+ *
+ * The UI has no source in this repo, only the compiled bundle, so:
+ *  - index-fnrz-20261004a.js/.css are the bundle with every blue (#2695FC etc.)
+ *    hue-rotated to purple, plus [data-fnrz-menu="pause"|"k"] and fnrz-* class
+ *    hooks on the two menus.
+ *  - this file styles those hooks and retints the menus' neutral panels.
+ *
+ * Rollback: in web/build/index.html point the script/BUNDLE back at
+ * index-fnrz-20260928e.js, the stylesheet at index-fnrz-20260928e.css, and
+ * drop the fnrz-theme.css <link>.
+ */
+
 :root {
-    --fz-blue: #2695fc;
-    --fz-blue-hover: #3a9ffc;
-    --fz-text: #e8eef6;
-    --fz-muted: #8b98aa;
-    --fz-surface: rgba(10, 18, 32, 0.88);
+    --fz-accent: #9738ea;
+    --fz-accent-hover: #a04aec;
+    --fz-text: #f0e9f5;
+    --fz-muted: #9d8da8;
+    --fz-surface: rgba(23, 11, 31, 0.88);
     --fz-line: rgba(255, 255, 255, 0.08);
 }
 
 .fnrz-bg {
-    background: linear-gradient(180deg, rgba(6, 12, 24, 0.82) 0%, rgba(6, 12, 24, 0.9) 100%);
+    background: linear-gradient(180deg, rgba(13, 8, 22, 0.82) 0%, rgba(13, 8, 22, 0.9) 100%);
 }
 
 .fnrz-bg--solid {
-    background: #070d19;
+    background: #0d0816;
 }
 
 [data-fnrz-menu="pause"].fnrz-bg {
     background:
-        linear-gradient(180deg, rgba(6, 12, 24, 0.7) 0%, rgba(6, 12, 24, 0) 18%),
-        linear-gradient(90deg, rgba(6, 12, 24, 0.96) 0%, rgba(6, 12, 24, 0.94) 38%, rgba(6, 12, 24, 0.7) 62%, rgba(6, 12, 24, 0.45) 100%);
+        linear-gradient(180deg, rgba(13, 8, 22, 0.7) 0%, rgba(13, 8, 22, 0) 18%),
+        linear-gradient(90deg, rgba(13, 8, 22, 0.96) 0%, rgba(13, 8, 22, 0.94) 38%, rgba(13, 8, 22, 0.7) 62%, rgba(13, 8, 22, 0.45) 100%);
 }
 
 .fnrz-topnav:not([data-hud-editor-top-nav])::after {
@@ -58,7 +72,7 @@
 .fnrz-tab.is-active,
 .fnrz-tab.is-active:hover:enabled {
     color: #fff;
-    background-color: var(--fz-blue);
+    background-color: var(--fz-accent);
 }
 
 .fnrz-key {
@@ -70,12 +84,12 @@
 }
 
 .fnrz-key.is-active {
-    background: var(--fz-blue);
+    background: var(--fz-accent);
     color: #fff;
 }
 
 .fnrz-brand {
-    color: var(--fz-blue);
+    color: var(--fz-accent);
 }
 
 .fnrz-brand-sub,
@@ -103,20 +117,20 @@
 }
 
 /* store link + coin balance: drop the double blue outline, match the tab bar */
-[data-fnrz-menu="pause"] .fnrz-topnav .border-\[\#2695FC\] {
+[data-fnrz-menu="pause"] .fnrz-topnav .border-\[\#9738EA\] {
     border-color: var(--fz-line);
     background: var(--fz-surface);
 }
 
-[data-fnrz-menu="pause"] .fnrz-topnav .bg-\[rgba\(38\,149\,252\,0\.20\)\] {
+[data-fnrz-menu="pause"] .fnrz-topnav .bg-\[rgba\(151\,56\,234\,0\.20\)\] {
     background: transparent;
 }
 
-/* ---------- Inner pages: retint neutral greys to navy ---------- */
+/* ---------- Inner pages: retint neutral greys to purple-black ---------- */
 
 /* light value chips (e.g. store refresh countdown) */
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.60\)\] {
-    background-color: rgba(38, 149, 252, 0.16);
+    background-color: rgba(151, 56, 234, 0.16);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.60\)\] .text-\[\#0A090E\] {
@@ -125,41 +139,41 @@
 
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.08\)\],
 [data-fnrz-menu] .bg-\[\#FFFFFF14\] {
-    background-color: rgba(120, 160, 220, 0.08);
+    background-color: rgba(179, 125, 215, 0.08);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.06\)\],
 [data-fnrz-menu] .bg-white\/5 {
-    background-color: rgba(120, 160, 220, 0.06);
+    background-color: rgba(179, 125, 215, 0.06);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.04\)\],
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.03\)\] {
-    background-color: rgba(120, 160, 220, 0.04);
+    background-color: rgba(179, 125, 215, 0.04);
 }
 
 [data-fnrz-menu] .bg-white\/10,
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.10\)\],
 [data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.12\)\] {
-    background-color: rgba(120, 160, 220, 0.11);
+    background-color: rgba(179, 125, 215, 0.11);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(216\,216\,216\,0\.20\)\] {
-    background-color: rgba(120, 160, 220, 0.14);
+    background-color: rgba(179, 125, 215, 0.14);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(38\,32\,36\,0\.65\)\] {
-    background-color: rgba(12, 20, 36, 0.72);
+    background-color: rgba(27, 13, 35, 0.72);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(38\,32\,36\,0\.88\)\] {
-    background-color: rgba(10, 18, 32, 0.9);
+    background-color: rgba(23, 11, 31, 0.9);
 }
 
 [data-fnrz-menu] .bg-\[rgba\(38\,32\,36\,0\.98\)\],
 [data-fnrz-menu] .bg-\[rgba\(10\,9\,14\,0\.98\)\],
 [data-fnrz-menu] .bg-\[\#0A0A0A\] {
-    background-color: #0a1220;
+    background-color: #170b1f;
 }
 
 [data-fnrz-menu] .border-\[rgba\(216\,216\,216\,0\.20\)\],
@@ -172,10 +186,10 @@
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* white "selected" pills used by sub-tabs across pages → blue */
+/* white "selected" pills used by sub-tabs across pages → accent */
 [data-fnrz-menu] .bg-white.text-black,
 [data-fnrz-menu] .bg-white.text-\[\#0A090E\] {
-    background-color: var(--fz-blue);
+    background-color: var(--fz-accent);
     color: #fff;
 }
 

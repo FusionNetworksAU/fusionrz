@@ -485,6 +485,11 @@ end
 function SetHudEditorActive(active)
     hudEditorActive = active == true
 
+    -- cinematic.lua: menus hide the HUD, except while this editor needs it visible.
+    if RefreshHudHidden then
+        RefreshHudHidden()
+    end
+
     if hudEditorActive then
         mmAnchorPushSuppressed = true
         RefreshMinimapRadarVisibility()

@@ -18,7 +18,6 @@ files {
 }
 
 client_scripts {
-    '@devmenu/client/warmenu.lua',
     '@ox_lib/init.lua',
 }
 client_script 'main.lua'

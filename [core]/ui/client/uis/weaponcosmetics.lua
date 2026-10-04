@@ -1,6 +1,13 @@
 local weaponcosmetics = exports.weaponcosmetics
 local shop = exports.shop
 
+-- The 3D preview / placement half lives in the weaponcosmetics resource. When it is not
+-- running, calling its exports throws and the NUI request is never answered.
+---@return boolean
+local function isCosmeticsRunning()
+    return GetResourceState('weaponcosmetics') == 'started'
+end
+
 ---@param data table[]
 exports('setOwnedCharms', function(data)
     SendNUIMessage({ action = 'setOwnedCharms', data = data })
@@ -23,6 +30,10 @@ RegisterNUICallback('previewCosmeticWeapon', function(data, cb)
         return
     end
 
+    if not isCosmeticsRunning() then
+        return cb(false)
+    end
+
     cb(weaponcosmetics:previewEquippedWeapon(data.baseWeaponName))
 end)
 
@@ -33,6 +44,11 @@ RegisterNUICallback('openWeaponPlacement', function(data, cb)
         return
     end
 
+    if not isCosmeticsRunning() then
+        exports.ui:notify({ type = 'error', text = 'Weapon charms are not available on this server.' })
+        return cb(false)
+    end
+
     cb(weaponcosmetics:openPlacement(data.baseWeaponName, data.itemId))
 end)
 
@@ -41,6 +57,10 @@ end)
 RegisterNUICallback('weaponPlacementPointAt', function(data, cb)
     if not CanUsePauseOrRankedMenu(cb) then
         return
+    end
+
+    if not isCosmeticsRunning() then
+        return cb({})
     end
 
     local offset, normal = weaponcosmetics:placementPointAt(data.nx, data.ny, data.crop)
@@ -60,7 +80,10 @@ end)
 ---@param _ any
 ---@param cb function
 RegisterNUICallback('closeWeaponPlacement', function(_, cb)
-    weaponcosmetics:closePlacement()
+    if isCosmeticsRunning() then
+        weaponcosmetics:closePlacement()
+    end
+
     cb(true)
 end)
 
