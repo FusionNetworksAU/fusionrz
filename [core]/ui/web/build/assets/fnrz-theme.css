@@ -1,11 +1,12 @@
 /*
- * FNRZ purple theme for the Esc (pause) and K menus.
+ * FNRZ purple theme for the Esc (pause), K and ranked/hopouts lobby menus.
  *
  * The UI has no source in this repo, only the compiled bundle, so:
- *  - index-fnrz-20261004a.js/.css are the bundle with every blue (#2695FC etc.)
- *    hue-rotated to purple, plus [data-fnrz-menu="pause"|"k"] and fnrz-* class
- *    hooks on the two menus.
+ *  - index-fnrz-20261004a.css / index-fnrz-20261004b.js are the bundle with
+ *    every blue (#2695FC etc.) hue-rotated to purple, plus
+ *    [data-fnrz-menu="pause"|"k"|"ranked"] and fnrz-* class hooks on the menus.
  *  - this file styles those hooks and retints the menus' neutral panels.
+ *  - 20261004a.js is the same minus the ranked-lobby hooks.
  *
  * Rollback: in web/build/index.html point the script/BUNDLE back at
  * index-fnrz-20260928e.js, the stylesheet at index-fnrz-20260928e.css, and
@@ -210,4 +211,201 @@
 
 [data-fnrz-menu] ::-webkit-scrollbar-track {
     background: transparent;
+}
+
+/* ---------- Ranked / hopouts lobby ---------- */
+/* Floating capsule header, pill controls, and the bottom-right matchmaking
+   dock (mode picker + mode card + start) grouped into one card. */
+
+[data-fnrz-menu="ranked"] {
+    --rk-radius: 0.875rem;
+    --rk-radius-sm: 0.625rem;
+    --rk-panel: rgba(18, 10, 26, 0.86);
+}
+
+/* Tailwind's rounded-md is 6px here, which reads as square at 1080p */
+[data-fnrz-menu="ranked"] .rounded,
+[data-fnrz-menu="ranked"] .rounded-md {
+    border-radius: var(--rk-radius-sm);
+}
+
+[data-fnrz-menu="ranked"] .rounded-t-md {
+    border-top-left-radius: var(--rk-radius-sm);
+    border-top-right-radius: var(--rk-radius-sm);
+}
+
+[data-fnrz-menu="ranked"] .rounded-b-md {
+    border-bottom-left-radius: var(--rk-radius-sm);
+    border-bottom-right-radius: var(--rk-radius-sm);
+}
+
+[data-fnrz-menu="ranked"] .rounded-sm {
+    border-radius: 0.375rem;
+}
+
+/* party nameplates + empty "+" slots */
+[data-fnrz-menu="ranked"] .rounded-\[0\.4375rem\] {
+    border-radius: var(--rk-radius);
+}
+
+/* art behind every tab except Queue (Queue shows the lobby scene) */
+.fnrz-rk-bg {
+    background:
+        radial-gradient(ellipse 70% 55% at 50% 40%, rgba(151, 56, 234, 0.14), transparent 70%),
+        #0d0816;
+}
+
+.fnrz-rk-header {
+    border: 1px solid var(--fz-line);
+    border-radius: 1rem;
+    background: var(--rk-panel);
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.35);
+}
+
+[data-fnrz-menu="ranked"] .fnrz-rk-tabs {
+    height: 2.375rem;
+    gap: 0.125rem;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+[data-fnrz-menu="ranked"] .fnrz-tab {
+    border-radius: var(--rk-radius-sm);
+}
+
+/* coin balance */
+[data-fnrz-menu="ranked"] .fnrz-rk-header .bg-\[rgba\(255\,255\,255\,0\.1\)\] {
+    border: 1px solid var(--fz-line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-fnrz-menu="ranked"] .fnrz-rk-header img {
+    border-radius: var(--rk-radius-sm);
+}
+
+/* "LOBBY" tag */
+.fnrz-rk-chip {
+    gap: 0.5rem;
+    border: 1px solid rgba(151, 56, 234, 0.45);
+    border-radius: 999px;
+    background: rgba(151, 56, 234, 0.16);
+}
+
+.fnrz-rk-chip::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 999px;
+    background: var(--fz-accent);
+}
+
+.fnrz-rk-chip .text-\[\#0A090E\] {
+    color: var(--fz-text);
+}
+
+/* matchmaking dock */
+.fnrz-rk-dock {
+    padding: 0.75rem;
+    border: 1px solid var(--fz-line);
+    border-radius: 1.25rem;
+    background: var(--rk-panel);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.45);
+}
+
+.fnrz-rk-select {
+    border: 1px solid var(--fz-line);
+    border-radius: var(--rk-radius);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--fz-text);
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.fnrz-rk-select:hover,
+.fnrz-rk-select[data-open] {
+    border-color: rgba(151, 56, 234, 0.5);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.fnrz-rk-select .text-\[\#0A090E\] {
+    color: inherit;
+}
+
+.fnrz-rk-select .text-\[0\.6875rem\] {
+    color: var(--fz-muted);
+}
+
+.fnrz-rk-select path {
+    fill: currentColor;
+}
+
+.fnrz-rk-mode {
+    overflow: hidden;
+    border: 1px solid var(--fz-line);
+    border-radius: var(--rk-radius);
+    background: #1a0f25;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.fnrz-rk-mode:hover:enabled {
+    border-color: rgba(151, 56, 234, 0.6);
+}
+
+.fnrz-rk-mode:active:enabled {
+    transform: scale(0.99);
+}
+
+.fnrz-rk-start {
+    border-radius: var(--rk-radius);
+    background: var(--fz-accent);
+    color: #fff;
+    transition: background-color 0.12s ease, transform 0.1s ease;
+}
+
+.fnrz-rk-start:hover:enabled {
+    background: var(--fz-accent-hover);
+}
+
+.fnrz-rk-start:active:enabled {
+    transform: scale(0.99);
+}
+
+.fnrz-rk-start:disabled {
+    opacity: 0.6;
+}
+
+/* warm brown panels from the original palette -> purple-black */
+[data-fnrz-menu] .bg-\[\#2E1D21\],
+[data-fnrz-menu] .bg-\[\#281B20\] {
+    background-color: #1a0f25;
+}
+
+[data-fnrz-menu] .bg-\[\#0E0B0B\] {
+    background-color: #120a1a;
+}
+
+[data-fnrz-menu] .hover\:bg-\[\#170F11\]:hover,
+[data-fnrz-menu] .hover\:bg-\[\#3d2a32\]:hover {
+    background-color: #26173a;
+}
+
+[data-fnrz-menu] .bg-\[rgba\(46\,29\,33\,0\.72\)\],
+[data-fnrz-menu] .bg-\[rgba\(40\,27\,32\,0\.68\)\] {
+    background-color: var(--fz-surface);
+}
+
+/* chat input */
+[data-fnrz-menu] .bg-\[rgba\(31\,29\,29\,0\.60\)\] {
+    background-color: rgba(18, 10, 26, 0.78);
+}
+
+/* dark icons drawn for the old light chips (e.g. the lobby info button) */
+[data-fnrz-menu] .bg-\[rgba\(255\,255\,255\,0\.60\)\] path[fill="#0A090E"] {
+    fill: var(--fz-text);
+}
+
+/* Change Mode cards: keep the character art inside the rounded corner */
+[data-fnrz-menu="ranked"] .h-\[20\.75rem\].rounded-md {
+    overflow: hidden;
 }

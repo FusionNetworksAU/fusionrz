@@ -272,7 +272,7 @@ local function drawBackdropThread()
         return
     end
 
-    -- Without the image, hang a plain navy panel instead: a missing file then
+    -- Without the image, hang a plain dark purple panel instead: a missing file then
     -- still reads as "backdrop there, image wrong" rather than no backdrop.
     local textured = loadBackdrop()
 
@@ -310,20 +310,20 @@ local function drawBackdropThread()
     local nr = vector3(near.x + halfWidth.x, near.y + halfWidth.y, stageZ)
 
     local function drawFloor()
-        DrawPoly(fl.x, fl.y, fl.z, fr.x, fr.y, fr.z, nr.x, nr.y, nr.z, 11, 20, 34, 255)
-        DrawPoly(fl.x, fl.y, fl.z, nr.x, nr.y, nr.z, nl.x, nl.y, nl.z, 11, 20, 34, 255)
-        DrawPoly(nr.x, nr.y, nr.z, fr.x, fr.y, fr.z, fl.x, fl.y, fl.z, 11, 20, 34, 255)
-        DrawPoly(nl.x, nl.y, nl.z, nr.x, nr.y, nr.z, fl.x, fl.y, fl.z, 11, 20, 34, 255)
+        DrawPoly(fl.x, fl.y, fl.z, fr.x, fr.y, fr.z, nr.x, nr.y, nr.z, 20, 11, 28, 255)
+        DrawPoly(fl.x, fl.y, fl.z, nr.x, nr.y, nr.z, nl.x, nl.y, nl.z, 20, 11, 28, 255)
+        DrawPoly(nr.x, nr.y, nr.z, fr.x, fr.y, fr.z, fl.x, fl.y, fl.z, 20, 11, 28, 255)
+        DrawPoly(nl.x, nl.y, nl.z, nr.x, nr.y, nr.z, fl.x, fl.y, fl.z, 20, 11, 28, 255)
     end
 
     CreateThread(function()
         while podiumActive and not textured do
             drawFloor()
 
-            DrawPoly(tl.x, tl.y, tl.z, tr.x, tr.y, tr.z, br.x, br.y, br.z, 16, 31, 51, 255)
-            DrawPoly(tl.x, tl.y, tl.z, br.x, br.y, br.z, bl.x, bl.y, bl.z, 16, 31, 51, 255)
-            DrawPoly(br.x, br.y, br.z, tr.x, tr.y, tr.z, tl.x, tl.y, tl.z, 16, 31, 51, 255)
-            DrawPoly(bl.x, bl.y, bl.z, br.x, br.y, br.z, tl.x, tl.y, tl.z, 16, 31, 51, 255)
+            DrawPoly(tl.x, tl.y, tl.z, tr.x, tr.y, tr.z, br.x, br.y, br.z, 30, 16, 42, 255)
+            DrawPoly(tl.x, tl.y, tl.z, br.x, br.y, br.z, bl.x, bl.y, bl.z, 30, 16, 42, 255)
+            DrawPoly(br.x, br.y, br.z, tr.x, tr.y, tr.z, tl.x, tl.y, tl.z, 30, 16, 42, 255)
+            DrawPoly(bl.x, bl.y, bl.z, br.x, br.y, br.z, tl.x, tl.y, tl.z, 30, 16, 42, 255)
 
             Wait(0)
         end
