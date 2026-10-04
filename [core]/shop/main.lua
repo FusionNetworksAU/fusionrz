@@ -165,7 +165,9 @@ end
 ---@param clothingId string?
 ---@return boolean success
 exports('equipClothing', function(category, clothingId)
-    local ok = lib.callback.await('shop:server:equipClothing', false, {
+    -- The server answers with the slot and what to put on (shared/clothing.lua),
+    -- including for the per-slot "default" piece.
+    local ok, _, apply = lib.callback.await('shop:server:equipClothing', false, {
         category = category,
         itemId = clothingId,
     })
@@ -174,13 +176,17 @@ exports('equipClothing', function(category, clothingId)
         return false
     end
 
-    local item = getCatalogueItem(clothingId)
+    if type(apply) == 'table' then
+        appearance:setPedComponents(cache.ped, apply.components)
+        appearance:setPedProps(cache.ped, apply.props)
 
-    if item and item.component then
-        appearance:wearClothes({
-            component_id = item.component,
-            drawable = item.drawable,
-            texture = item.texture,
+        -- Keep the menu's preview ped (if one is up) dressed the same.
+        -- Tattoos are passed through unchanged: appearance keeps them in shared
+        -- state, so an empty list here would drop the player's own.
+        exports.shop:setPreviewPedAppearance({
+            components = apply.components or {},
+            props = apply.props or {},
+            tattoos = appearance:getPedTattoos(cache.ped),
         })
     end
 

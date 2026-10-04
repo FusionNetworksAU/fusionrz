@@ -99,13 +99,44 @@ local function equipSlotted(source, key, category, slot, itemId)
     return true
 end
 
+---Returns, on success, the slot and what to put on, so the client can dress
+---the ped without its owned list being current (equipping straight after a
+---purchase races the profile refresh).
 ---@param data { category: string?, itemId: string? }
+---@return boolean success
+---@return string slotOrError
+---@return { components: table[], props: table[] }? apply
 lib.callback.register('shop:server:equipClothing', function(source, data)
     if type(data) ~= 'table' then
         return false, 'Invalid request.'
     end
 
-    return equipSlotted(source, Shop.keys.clothing, 'clothing', data.category, data.itemId)
+    local itemId = data.itemId
+    local slot = data.category
+    local isDefault = itemId == Shop.DEFAULT_CLOTHING_ID or itemId == nil or itemId == ''
+    local item = not isDefault and Shop.getItem(itemId) or nil
+
+    -- Store purchases and outfit bundles equip by item alone.
+    if slot == nil and item then
+        slot = Shop.getClothingSlotOf(item)
+    end
+
+    if not Shop.isClothingSlot(slot) then
+        return false, 'Invalid request.'
+    end
+
+    if not isDefault and (not item or Shop.getClothingSlotOf(item) ~= slot) then
+        return false, 'That does not go in this slot.'
+    end
+
+    -- The Default piece is the empty slot: clearing it is what puts it on.
+    local ok, err = equipSlotted(source, Shop.keys.clothing, 'clothing', slot, isDefault and '' or itemId)
+
+    if not ok then
+        return false, err
+    end
+
+    return true, slot, isDefault and Shop.getDefaultClothingApply(slot) or Shop.getClothingItemApply(item)
 end)
 
 ---@param data { category: string?, itemId: string?, equip: boolean? }

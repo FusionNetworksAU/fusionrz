@@ -2,11 +2,13 @@
  * FNRZ purple theme for the Esc (pause), K and ranked/hopouts lobby menus.
  *
  * The UI has no source in this repo, only the compiled bundle, so:
- *  - index-fnrz-20261004a.css / index-fnrz-20261004b.js are the bundle with
+ *  - index-fnrz-20261004a.css / index-fnrz-20261004c.js are the bundle with
  *    every blue (#2695FC etc.) hue-rotated to purple, plus
  *    [data-fnrz-menu="pause"|"k"|"ranked"] and fnrz-* class hooks on the menus.
  *  - this file styles those hooks and retints the menus' neutral panels.
- *  - 20261004a.js is the same minus the ranked-lobby hooks.
+ *  - earlier steps: 20261004a.js (no ranked hooks), 20261004b.js (no ped
+ *    preview re-crop / fnrz-preview hook).
+ *  - cdn/clothing/default/*.svg are the "Default" clothing card icons.
  *
  * Rollback: in web/build/index.html point the script/BUNDLE back at
  * index-fnrz-20260928e.js, the stylesheet at index-fnrz-20260928e.css, and
@@ -217,35 +219,50 @@
 /* Floating capsule header, pill controls, and the bottom-right matchmaking
    dock (mode picker + mode card + start) grouped into one card. */
 
-[data-fnrz-menu="ranked"] {
+[data-fnrz-menu] {
     --rk-radius: 0.875rem;
     --rk-radius-sm: 0.625rem;
     --rk-panel: rgba(18, 10, 26, 0.86);
 }
 
-/* Tailwind's rounded-md is 6px here, which reads as square at 1080p */
-[data-fnrz-menu="ranked"] .rounded,
-[data-fnrz-menu="ranked"] .rounded-md {
+/* Tailwind's rounded-md is 6px here, which reads as square at 1080p.
+   Applies to every themed menu (pause, K, ranked). */
+[data-fnrz-menu] .rounded,
+[data-fnrz-menu] .rounded-md {
     border-radius: var(--rk-radius-sm);
 }
 
-[data-fnrz-menu="ranked"] .rounded-t-md {
+[data-fnrz-menu] .rounded-t-md {
     border-top-left-radius: var(--rk-radius-sm);
     border-top-right-radius: var(--rk-radius-sm);
 }
 
-[data-fnrz-menu="ranked"] .rounded-b-md {
+[data-fnrz-menu] .rounded-b-md {
     border-bottom-left-radius: var(--rk-radius-sm);
     border-bottom-right-radius: var(--rk-radius-sm);
 }
 
-[data-fnrz-menu="ranked"] .rounded-sm {
+[data-fnrz-menu] .rounded-sm {
     border-radius: 0.375rem;
 }
 
+/* inner boxes of outlined buttons (store link, coins) */
+[data-fnrz-menu] .rounded-\[0\.3125rem\] {
+    border-radius: 0.5rem;
+}
+
 /* party nameplates + empty "+" slots */
-[data-fnrz-menu="ranked"] .rounded-\[0\.4375rem\] {
+[data-fnrz-menu] .rounded-\[0\.4375rem\] {
     border-radius: var(--rk-radius);
+}
+
+[data-fnrz-menu] .fnrz-tabs {
+    border-radius: 0.75rem;
+}
+
+[data-fnrz-menu] .fnrz-tab,
+[data-fnrz-menu] .fnrz-key {
+    border-radius: 0.5rem;
 }
 
 /* art behind every tab except Queue (Queue shows the lobby scene) */
@@ -408,4 +425,20 @@
 /* Change Mode cards: keep the character art inside the rounded corner */
 [data-fnrz-menu="ranked"] .h-\[20\.75rem\].rounded-md {
     overflow: hidden;
+}
+
+/* ---------- Profile: ped preview panel ---------- */
+/* Rounded card behind the ped. The panel is a crop of the game frame, whose
+   background is black; `lighten` lets this card show through the black while
+   the ped (always brighter) draws on top. */
+.fnrz-preview {
+    border: 1px solid var(--fz-line);
+    border-radius: var(--rk-radius);
+    background:
+        radial-gradient(ellipse 80% 55% at 50% 40%, rgba(151, 56, 234, 0.22), transparent 70%),
+        linear-gradient(180deg, #1c1029 0%, #0f0818 100%);
+}
+
+.fnrz-preview canvas {
+    mix-blend-mode: lighten;
 }

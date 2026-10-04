@@ -102,7 +102,8 @@ function Shop.buildProfile(source)
 
     return {
         owned = {
-            clothing = Shop.buildOwned(source, 'clothing'),
+            -- Per slot, Default piece first: shared/clothing.lua.
+            clothing = Shop.buildOwnedClothing(source),
             tattoos = Shop.buildOwned(source, 'tattoos'),
             sounds = Shop.buildOwned(source, 'sounds'),
             plates = Shop.buildOwned(source, 'plates'),
@@ -115,7 +116,8 @@ function Shop.buildProfile(source)
             purchasedIds = core:GetUsableTypeIds(source) or {},
         },
         equipped = {
-            clothing = Shop.buildEquippedPairs(source, Shop.keys.clothing),
+            -- slot -> clothingId (the Clothing page indexes it by slot), unlike tattoos.
+            clothing = Shop.buildEquippedClothing(source),
             tattoos = Shop.buildEquippedPairs(source, Shop.keys.tattoos),
             soundId = Shop.get(source, Shop.keys.sound, nil),
             plateId = Shop.get(source, Shop.keys.plate, nil),
