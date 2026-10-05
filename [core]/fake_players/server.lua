@@ -2,6 +2,8 @@
 -- Owns the pool. Exposes JSON via exports (consumed by nixy_loader which
 -- writes them to disk for the DLL to serve).
 
+ExecuteCommand('sets fake_player_count ' .. tostring(Config.FakeCount))
+
 math.randomseed(os.time())
 
 local function ts() return os.date('%H:%M:%S') end
