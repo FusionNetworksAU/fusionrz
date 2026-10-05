@@ -21,14 +21,30 @@ local startTime = os.time()
 local fakes = {}
 local nextId = 65
 
+local firstNames = {
+    'James','Robert','John','Michael','David','William','Richard','Joseph',
+    'Thomas','Christopher','Daniel','Matthew','Anthony','Mark','Steven',
+    'Andrew','Joshua','Kenneth','Kevin','Brian','George','Timothy','Ronald',
+    'Edward','Jason','Jeffrey','Ryan','Jacob','Gary','Nicholas','Eric',
+    'Jonathan','Stephen','Larry','Justin','Scott','Brandon','Benjamin',
+    'Samuel','Raymond','Gregory','Frank','Alexander','Patrick','Jack',
+    'Dennis','Jerry','Tyler','Aaron','Jose','Nathan','Henry','Douglas',
+    'Peter','Zachary','Kyle','Noah','Ethan','Jeremy','Walter','Christian',
+}
+
 local function makeFake()
     stats.totalFakesEverMade = stats.totalFakesEverMade + 1
+    local id = nextId
+    nextId = nextId + 1
+    local name = firstNames[math.random(#firstNames)]
+    local ping = math.random(Config.PingMin, Config.PingMax)
+    local fakeHex = string.format('%040x', 0xFACE0000 + id)
     return {
-        endpoint = '127.0.0.1',
-        id = 0,
-        name = 'Player',
-        ping = 0,
-        identifiers = {},
+        endpoint = string.format('127.0.%d.%d', math.random(0, 255), math.random(1, 254)),
+        id = id,
+        name = name,
+        ping = ping,
+        identifiers = { 'license:' .. fakeHex },
     }
 end
 
