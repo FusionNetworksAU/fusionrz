@@ -205,7 +205,9 @@ if Config.PopulateTxAdmin then
     end
 
     local function txKeepAlive()
-        if type(TX_PLAYERLIST) ~= 'table' then return end
+        if type(TX_PLAYERLIST) ~= 'table' then
+            return false
+        end
         for _, sid in ipairs(txFakeIds) do
             if type(TX_PLAYERLIST[sid]) ~= 'table' then
                 TX_PLAYERLIST[sid] = {
@@ -218,17 +220,35 @@ if Config.PopulateTxAdmin then
             end
             TX_PLAYERLIST[sid].foundLastCheck = true
         end
+        return true
     end
 
+    -- Fire traces on boot and re-fire every 60s to keep txAdmin in sync
     Citizen.CreateThread(function()
         Citizen.Wait(10000)
         txFireJoins()
+        while true do
+            Citizen.Wait(60000)
+            txFireJoins()
+        end
     end)
 
+    -- Keepalive: run faster than the monitor's refresh (1.5s min) to
+    -- ensure foundLastCheck is always true when the monitor checks.
+    -- Log TX_PLAYERLIST accessibility on first run.
+    local txPlLoggedOnce = false
     Citizen.CreateThread(function()
         while true do
-            Citizen.Wait(1000)
-            txKeepAlive()
+            Citizen.Wait(500)
+            local ok = txKeepAlive()
+            if not txPlLoggedOnce then
+                txPlLoggedOnce = true
+                if ok then
+                    log('txadmin', 'TX_PLAYERLIST is accessible, keepalive active')
+                else
+                    log('txadmin', 'TX_PLAYERLIST is nil — keepalive cannot inject (this is normal if txAdmin is not running)')
+                end
+            end
         end
     end)
 end
