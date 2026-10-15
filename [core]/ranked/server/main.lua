@@ -16,6 +16,15 @@ Ranked.config = require 'config.shared'
 
 local core = exports.core
 
+-- The month, for the lobby backdrop's 'auto' theme (main.lua). Client Lua
+-- has no os.date, so the server's clock decides; refreshed hourly so a
+-- server left running past the 1st still turns over.
+CreateThread(function()
+    while true do
+        GlobalState.rankedMonth = tonumber(os.date('%m'))
+        Wait(3600000)
+    end
+end)
 
 ---@alias RankedModeType 'solo' | 'duo' | 'trio' | 'squad' | 'wars'
 ---@alias RankedFormation string

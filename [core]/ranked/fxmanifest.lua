@@ -11,7 +11,6 @@ files {
     'config/client.lua',
     'config/shared.lua',
     'web/index.html',
-    'web/backdrop.html',
     'web/backdrops/*.html',
     'web/backdrops/*.js',
     -- The lobby backdrop (config/client.lua podium.backdrop), loaded into a

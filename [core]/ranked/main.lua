@@ -241,6 +241,9 @@ local backdropLoaded = nil
 ---@type integer? the DUI behind an animated backdrop; kept for the session
 local backdropDui = nil
 
+---@type string? the page that DUI loaded, for the console line
+local backdropPage = nil
+
 ---Pauses or resumes the animated backdrop page, so it is not animating while
 ---the lobby is closed.
 ---@param paused boolean
@@ -248,6 +251,34 @@ local function setBackdropPaused(paused)
     if backdropDui then
         SendDuiMessage(backdropDui, json.encode({ type = 'setPaused', paused = paused }))
     end
+end
+
+local BACKDROP_THEMES = { normal = true, halloween = true, christmas = true, cabin = true, city = true }
+
+---The backdrop theme to show: the configured one, or for 'auto' the one
+---that fits the month. Picked here rather than in the page because a query
+---string on a nui:// DUI url is not reliably passed through. The month comes
+---from the server (server/main.lua): client Lua has no os.date.
+---@param theme string?
+---@return string
+local function resolveBackdropTheme(theme)
+    theme = type(theme) == 'string' and theme:lower() or 'auto'
+
+    if theme == 'auto' then
+        local month = tonumber(GlobalState.rankedMonth)
+
+        if month == 10 then
+            theme = 'halloween'
+        elseif month == 12 then
+            theme = 'christmas'
+        elseif month and month <= 2 then
+            theme = 'cabin'
+        else
+            theme = 'normal'
+        end
+    end
+
+    return BACKDROP_THEMES[theme] and theme or 'normal'
 end
 
 ---Loads config.podium.backdrop into a runtime texture, once: the animated
@@ -269,8 +300,10 @@ local function loadBackdrop()
 
     if backdrop.dui then
         local resolution = backdrop.duiResolution or { 1920, 1096 }
+        local page = backdrop.dui:format(resolveBackdropTheme(backdrop.theme))
 
-        backdropDui = CreateDui(('nui://%s/%s'):format(cache.resource, backdrop.dui), resolution[1], resolution[2])
+        backdropPage = page
+        backdropDui = CreateDui(('nui://%s/%s'):format(cache.resource, page), resolution[1], resolution[2])
 
         if backdropDui and CreateRuntimeTextureFromDuiHandle(txd, BACKDROP_TEXTURE, GetDuiHandle(backdropDui)) then
             backdropLoaded = true
@@ -278,7 +311,7 @@ local function loadBackdrop()
             return true
         end
 
-        lib.print.warn(('[ranked] animated lobby backdrop "%s" could not be loaded; falling back to the image'):format(backdrop.dui))
+        lib.print.warn(('[ranked] animated lobby backdrop "%s" could not be loaded; falling back to the image'):format(page))
 
         if backdropDui then
             DestroyDui(backdropDui)
@@ -315,7 +348,7 @@ local function drawBackdropThread()
     -- still reads as "backdrop there, image wrong" rather than no backdrop.
     local textured = loadBackdrop()
 
-    lib.print.info(('[ranked] lobby backdrop: %s'):format(textured and (backdropDui and backdrop.dui or backdrop.image) or 'image failed, using plain panel'))
+    lib.print.info(('[ranked] lobby backdrop: %s'):format(textured and (backdropDui and backdropPage or backdrop.image) or 'image failed, using plain panel'))
 
     setBackdropPaused(false)
 
