@@ -4,19 +4,24 @@
 ---The admin who runs it does the photographing (client/thumbnails.lua): a ped
 ---in the sky in front of a green panel, one shot per item, captured from the
 ---game frame by ui's NUI page (no screenshot resource needed). Each shot comes
----back here, is written into ui's image folder and set as the item's `image`.
+---back here, is written into this resource's thumbnails/ folder and set as
+---the item's `image`.
 ---
----ui serves its files from the copy clients downloaded when it started, so new
----pictures show after `ensure ui` (the command says so when it finishes).
+---Kept in shop, not in ui: the server will not write into another resource's
+---folder, which is why every save into ui failed. The NUI loads them straight
+---from this resource (https://cfx-nui-shop/..., listed in fxmanifest files),
+---and clients get new files after `ensure shop` (the command says so).
 
 Shop = Shop or {}
 
 local core = exports.core
 
----Where the pictures go, inside the ui resource, and the `image` value that
----points at them (ui resolves it against web/build/cdn/).
-local OUTPUT_DIR = 'web/build/cdn/clothing/items/'
-local IMAGE_PREFIX = 'clothing/items/'
+local RESOURCE = GetCurrentResourceName()
+
+---Where the pictures go, inside this resource, and the `image` value that
+---points at them. A full https URL, which the UI uses as-is.
+local OUTPUT_DIR = 'thumbnails/'
+local IMAGE_URL = ('https://cfx-nui-%s/thumbnails/%%s.webp'):format(RESOURCE)
 
 ---@type table<Source, { ids: table<string, true>, saved: integer, total: integer }>
 local sessions = {}
@@ -130,12 +135,13 @@ RegisterNetEvent('shop:server:saveThumbnail', function(itemId, image)
     local bytes = decodeBase64(base64)
     local path = OUTPUT_DIR .. itemId .. '.webp'
 
-    if not SaveResourceFile('ui', path, bytes, #bytes) then
-        lib.print.error(('[shop] could not write ui/%s (is the ui folder writable?)'):format(path))
+    if not SaveResourceFile(RESOURCE, path, bytes, #bytes) then
+        lib.print.error(('[shop] could not write %s/%s -- does the folder %s/thumbnails exist?'):format(
+            RESOURCE, path, GetResourcePath(RESOURCE)))
         return ack(false)
     end
 
-    MySQL.update.await('UPDATE items SET image = ? WHERE id = ?', { IMAGE_PREFIX .. itemId .. '.webp', itemId })
+    MySQL.update.await('UPDATE items SET image = ? WHERE id = ?', { IMAGE_URL:format(itemId), itemId })
 
     session.ids[itemId] = nil
     session.saved += 1
@@ -157,7 +163,7 @@ RegisterNetEvent('shop:server:thumbnailsDone', function(failed)
     -- New `image` values into the catalogue, and to every player's menus.
     core:RefreshItems()
 
-    local message = ('Saved %d of %d pictures%s. Run "ensure ui" so players get the new files.'):format(
+    local message = ('Saved %d of %d pictures%s. Run "ensure shop" so players get the new files.'):format(
         session.saved, session.total,
         (tonumber(failed) or 0) > 0 and (' (%d could not be taken)'):format(failed) or ''
     )

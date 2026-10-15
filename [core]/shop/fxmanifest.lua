@@ -13,6 +13,9 @@ files {
     'config/categories.lua',
     'config/preview.lua',
     'config/debug.lua',
+    -- Clothing pictures from /clothingshots, loaded by the UI as
+    -- https://cfx-nui-shop/thumbnails/<id>.webp.
+    'thumbnails/*.webp',
 }
 
 shared_script '@ox_lib/init.lua'
