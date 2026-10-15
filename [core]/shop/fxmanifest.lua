@@ -26,6 +26,8 @@ server_scripts {
 }
 
 client_script 'main.lua'
+-- /clothingshots photographer (server/thumbnails.lua drives it).
+client_script 'client/thumbnails.lua'
 -- Shims for exports this base does not implement; see compat.lua.
 client_script 'compat.lua'
 
