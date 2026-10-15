@@ -154,9 +154,7 @@ local function placeBigmapComponents(offsetX, offsetY)
     offsetY = clampOffset(offsetY or mmOffsetY)
 
     for name, base in pairs(BIGMAP_BASE) do
-        local p, s = AdjustNormalized16_9ValuesForCurrentAspectRatio(
-            'L', base.x + offsetX, base.y + offsetY, base.w, base.h, true
-        )
+        local p, s = AdjustNormalized16_9ValuesForCurrentAspectRatio('L', base.x + offsetX, base.y + offsetY, base.w, base.h, true)
         SetMinimapComponentPosition(name, 'L', 'B', p.x, p.y, s.x, s.y)
     end
 end

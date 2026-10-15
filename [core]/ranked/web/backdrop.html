@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<!--
+			Animated lobby backdrop. Rendered into a DUI and painted onto the quad
+			behind the podium (main.lua drawBackdropThread), so it is a texture in
+			the world, not part of the NUI.
+
+			Only the middle of it is ever on screen: at the podium camera's zoom
+			the view covers roughly 20%-80% across and 20%-75% down. Keep anything
+			that matters inside that. The feet of the party land at about
+			(48%, 70%), which is where the stage light sits.
+		-->
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+
+			body {
+				background: linear-gradient(180deg, #3b1d52 0%, #2b1540 40%, #1d0e29 72%, #140a1c 100%);
+			}
+
+			.layer {
+				position: absolute;
+				inset: 0;
+				pointer-events: none;
+			}
+
+			body.paused * {
+				animation-play-state: paused !important;
+			}
+
+			/* Slow drifting colour, the "aurora" behind everything. */
+			.blob {
+				position: absolute;
+				border-radius: 50%;
+				filter: blur(90px);
+				opacity: 0.45;
+				will-change: transform;
+			}
+
+			.blob.a {
+				width: 46%;
+				height: 60%;
+				left: 18%;
+				top: 12%;
+				background: #6d33d6;
+				animation: drift-a 26s ease-in-out infinite alternate;
+			}
+
+			.blob.b {
+				width: 40%;
+				height: 52%;
+				left: 46%;
+				top: 22%;
+				background: #a23cc9;
+				opacity: 0.32;
+				animation: drift-b 32s ease-in-out infinite alternate;
+			}
+
+			.blob.c {
+				width: 36%;
+				height: 44%;
+				left: 30%;
+				top: 38%;
+				background: #3d2bb8;
+				opacity: 0.38;
+				animation: drift-c 22s ease-in-out infinite alternate;
+			}
+
+			@keyframes drift-a {
+				0% { transform: translate(0, 0) scale(1); }
+				100% { transform: translate(10%, 6%) scale(1.12); }
+			}
+
+			@keyframes drift-b {
+				0% { transform: translate(0, 0) scale(1.05); }
+				100% { transform: translate(-14%, 8%) scale(0.92); }
+			}
+
+			@keyframes drift-c {
+				0% { transform: translate(0, 0) scale(0.95); }
+				100% { transform: translate(12%, -10%) scale(1.1); }
+			}
+
+			/* Centre glow behind the party; same spot as the old static image. */
+			.glow {
+				background: radial-gradient(ellipse 26% 32% at 50% 55%, rgba(132, 62, 214, 0.55), rgba(132, 62, 214, 0) 100%);
+				animation: breathe 7s ease-in-out infinite;
+			}
+
+			@keyframes breathe {
+				0%, 100% { opacity: 0.75; transform: scale(1); }
+				50% { opacity: 1; transform: scale(1.06); }
+			}
+
+			/* Faint rings pulsing out from behind the party. */
+			.ring {
+				position: absolute;
+				left: 50%;
+				top: 55%;
+				width: 30vw;
+				height: 30vw;
+				margin: -15vw 0 0 -15vw;
+				border-radius: 50%;
+				border: 2px solid rgba(190, 140, 255, 0.5);
+				opacity: 0;
+				animation: ring 12s linear infinite;
+			}
+
+			.ring:nth-child(2) { animation-delay: 4s; }
+			.ring:nth-child(3) { animation-delay: 8s; }
+
+			@keyframes ring {
+				0% { transform: scale(0.3); opacity: 0; }
+				15% { opacity: 0.16; }
+				100% { transform: scale(2.4); opacity: 0; }
+			}
+
+			/* A soft beam that sweeps across now and then. */
+			.sweep {
+				background: linear-gradient(105deg, transparent 40%, rgba(214, 180, 255, 0.07) 50%, transparent 60%);
+				background-size: 250% 100%;
+				animation: sweep 14s ease-in-out infinite;
+			}
+
+			@keyframes sweep {
+				0%, 20% { background-position: 120% 0; }
+				70%, 100% { background-position: -20% 0; }
+			}
+
+			/* Stands in for the floor: a pool of light under the party's feet. */
+			.stage {
+				background: radial-gradient(ellipse 22% 7% at 48.5% 70%, rgba(168, 96, 255, 0.45), rgba(168, 96, 255, 0) 100%);
+				animation: stage 5s ease-in-out infinite;
+			}
+
+			@keyframes stage {
+				0%, 100% { opacity: 0.8; }
+				50% { opacity: 1; }
+			}
+
+			.particle {
+				position: absolute;
+				bottom: -2%;
+				border-radius: 50%;
+				background: rgba(220, 190, 255, 0.9);
+				box-shadow: 0 0 6px rgba(190, 140, 255, 0.9);
+				animation-name: rise;
+				animation-timing-function: linear;
+				animation-iteration-count: infinite;
+			}
+
+			@keyframes rise {
+				0% { transform: translate(0, 0); opacity: 0; }
+				10% { opacity: var(--alpha); }
+				90% { opacity: var(--alpha); }
+				100% { transform: translate(var(--sway), -105vh); opacity: 0; }
+			}
+
+			.vignette {
+				background: radial-gradient(ellipse 60% 60% at 50% 52%, transparent 55%, rgba(10, 4, 16, 0.65) 100%);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="layer">
+			<div class="blob a"></div>
+			<div class="blob b"></div>
+			<div class="blob c"></div>
+		</div>
+		<div class="layer glow"></div>
+		<div class="layer">
+			<div class="ring"></div>
+			<div class="ring"></div>
+			<div class="ring"></div>
+		</div>
+		<div class="layer sweep"></div>
+		<div class="layer stage"></div>
+		<div class="layer" id="particles"></div>
+		<div class="layer vignette"></div>
+
+		<script>
+			(function () {
+				var container = document.getElementById('particles');
+				var COUNT = 45;
+
+				for (var i = 0; i < COUNT; i++) {
+					var p = document.createElement('div');
+					var size = 2 + Math.random() * 4;
+					var duration = 14 + Math.random() * 16;
+
+					p.className = 'particle';
+					p.style.width = size + 'px';
+					p.style.height = size + 'px';
+					// Keep them within the part of the image the camera sees.
+					p.style.left = (18 + Math.random() * 64) + '%';
+					p.style.animationDuration = duration + 's';
+					// Negative delay so the screen is already populated on open.
+					p.style.animationDelay = (-Math.random() * duration) + 's';
+					p.style.setProperty('--sway', ((Math.random() - 0.5) * 120) + 'px');
+					p.style.setProperty('--alpha', (0.25 + Math.random() * 0.5).toFixed(2));
+
+					container.appendChild(p);
+				}
+
+				// main.lua pauses the page while the lobby is closed, so the DUI
+				// does not keep animating in the background.
+				window.addEventListener('message', function (event) {
+					var data = event.data;
+
+					if (typeof data === 'string') {
+						try { data = JSON.parse(data); } catch (e) { return; }
+					}
+
+					if (data && data.type === 'setPaused') {
+						document.body.classList.toggle('paused', !!data.paused);
+					}
+				});
+			})();
+		</script>
+	</body>
+</html>

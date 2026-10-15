@@ -156,9 +156,12 @@ local function createMemberPed(member, feet, heading)
         return 0
     end
 
-    SetEntityInvincible(ped, true)
-    SetBlockingOfNonTemporaryEvents(ped, true)
+    -- Frozen straight away: the podium hangs in the air, and an unfrozen ped
+    -- would start falling.
     FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    SetPedCanRagdoll(ped, false)
+    SetBlockingOfNonTemporaryEvents(ped, true)
     SetPedDefaultComponentVariation(ped)
 
     if look and GetResourceState('appearance') == 'started' then
@@ -235,7 +238,20 @@ local BACKDROP_TEXTURE = 'backdrop'
 ---@type boolean? nil = not tried yet, false = the image failed to load
 local backdropLoaded = nil
 
----Loads config.podium.backdrop.image into a runtime texture, once.
+---@type integer? the DUI behind an animated backdrop; kept for the session
+local backdropDui = nil
+
+---Pauses or resumes the animated backdrop page, so it is not animating while
+---the lobby is closed.
+---@param paused boolean
+local function setBackdropPaused(paused)
+    if backdropDui then
+        SendDuiMessage(backdropDui, json.encode({ type = 'setPaused', paused = paused }))
+    end
+end
+
+---Loads config.podium.backdrop into a runtime texture, once: the animated
+---page (`dui`) when set, the still `image` when not or when the page fails.
 ---@return boolean
 local function loadBackdrop()
     if backdropLoaded ~= nil then
@@ -245,11 +261,34 @@ local function loadBackdrop()
     local backdrop = config.podium.backdrop
     backdropLoaded = false
 
-    if not backdrop or not backdrop.image then
+    if not backdrop then
         return false
     end
 
     local txd = CreateRuntimeTxd(BACKDROP_TXD)
+
+    if backdrop.dui then
+        local resolution = backdrop.duiResolution or { 1920, 1096 }
+
+        backdropDui = CreateDui(('nui://%s/%s'):format(cache.resource, backdrop.dui), resolution[1], resolution[2])
+
+        if backdropDui and CreateRuntimeTextureFromDuiHandle(txd, BACKDROP_TEXTURE, GetDuiHandle(backdropDui)) then
+            backdropLoaded = true
+
+            return true
+        end
+
+        lib.print.warn(('[ranked] animated lobby backdrop "%s" could not be loaded; falling back to the image'):format(backdrop.dui))
+
+        if backdropDui then
+            DestroyDui(backdropDui)
+            backdropDui = nil
+        end
+    end
+
+    if not backdrop.image then
+        return false
+    end
 
     if not CreateRuntimeTextureFromImage(txd, BACKDROP_TEXTURE, backdrop.image) then
         lib.print.warn(('[ranked] lobby backdrop "%s" could not be loaded; is it listed in fxmanifest files?'):format(backdrop.image))
@@ -276,7 +315,9 @@ local function drawBackdropThread()
     -- still reads as "backdrop there, image wrong" rather than no backdrop.
     local textured = loadBackdrop()
 
-    lib.print.info(('[ranked] lobby backdrop: %s'):format(textured and backdrop.image or 'image failed, using plain panel'))
+    lib.print.info(('[ranked] lobby backdrop: %s'):format(textured and (backdropDui and backdrop.dui or backdrop.image) or 'image failed, using plain panel'))
+
+    setBackdropPaused(false)
 
     local heading = math.rad(podium.position.w)
     local forward = vector3(-math.sin(heading), math.cos(heading), 0.0)
@@ -298,22 +339,29 @@ local function drawBackdropThread()
     local bl = vector3(left.x, left.y, bottom)
     local br = vector3(rightEdge.x, rightEdge.y, bottom)
 
-    -- A plain stage floor from the backdrop to behind the camera, just above
-    -- the ground, so the shot is backdrop + floor and not the dock's concrete
-    -- and kerb poking out under the image.
-    local stageZ = floorZ(vector3(podium.position.x, podium.position.y, podium.position.z)) + 0.015
-    local near = vector3(podium.position.x, podium.position.y, 0.0) - forward * ((podium.distance or 8.0) + 3.0)
-    local far = vector3(centre.x, centre.y, 0.0)
-    local fl = vector3(far.x - halfWidth.x, far.y - halfWidth.y, stageZ)
-    local fr = vector3(far.x + halfWidth.x, far.y + halfWidth.y, stageZ)
-    local nl = vector3(near.x - halfWidth.x, near.y - halfWidth.y, stageZ)
-    local nr = vector3(near.x + halfWidth.x, near.y + halfWidth.y, stageZ)
+    -- Optional plain stage floor from the backdrop to behind the camera, for
+    -- a podium placed on real ground. The default podium hangs in the sky
+    -- with nothing under it, so the backdrop fills the whole shot and there
+    -- is no floor to see.
+    local floorColour = backdrop.floor
+    local drawFloor = function() end
 
-    local function drawFloor()
-        DrawPoly(fl.x, fl.y, fl.z, fr.x, fr.y, fr.z, nr.x, nr.y, nr.z, 20, 11, 28, 255)
-        DrawPoly(fl.x, fl.y, fl.z, nr.x, nr.y, nr.z, nl.x, nl.y, nl.z, 20, 11, 28, 255)
-        DrawPoly(nr.x, nr.y, nr.z, fr.x, fr.y, fr.z, fl.x, fl.y, fl.z, 20, 11, 28, 255)
-        DrawPoly(nl.x, nl.y, nl.z, nr.x, nr.y, nr.z, fl.x, fl.y, fl.z, 20, 11, 28, 255)
+    if floorColour then
+        local stageZ = floorZ(vector3(podium.position.x, podium.position.y, podium.position.z)) + 0.015
+        local near = vector3(podium.position.x, podium.position.y, 0.0) - forward * ((podium.distance or 8.0) + 3.0)
+        local far = vector3(centre.x, centre.y, 0.0)
+        local fl = vector3(far.x - halfWidth.x, far.y - halfWidth.y, stageZ)
+        local fr = vector3(far.x + halfWidth.x, far.y + halfWidth.y, stageZ)
+        local nl = vector3(near.x - halfWidth.x, near.y - halfWidth.y, stageZ)
+        local nr = vector3(near.x + halfWidth.x, near.y + halfWidth.y, stageZ)
+        local r, g, b = floorColour[1], floorColour[2], floorColour[3]
+
+        drawFloor = function()
+            DrawPoly(fl.x, fl.y, fl.z, fr.x, fr.y, fr.z, nr.x, nr.y, nr.z, r, g, b, 255)
+            DrawPoly(fl.x, fl.y, fl.z, nr.x, nr.y, nr.z, nl.x, nl.y, nl.z, r, g, b, 255)
+            DrawPoly(nr.x, nr.y, nr.z, fr.x, fr.y, fr.z, fl.x, fl.y, fl.z, r, g, b, 255)
+            DrawPoly(nl.x, nl.y, nl.z, nr.x, nr.y, nr.z, fl.x, fl.y, fl.z, r, g, b, 255)
+        end
     end
 
     CreateThread(function()
@@ -386,6 +434,8 @@ local function stopPodium()
     end
 
     podiumActive = false
+
+    setBackdropPaused(true)
 
     ClearFocus()
 

@@ -37,7 +37,10 @@ return {
     previewPedSize = 2.0,
     previewVehicleSize = 4.0,
     podium = {
-        position = vector4(224.0433, -3261.7795, 40.4645, 91.4100),
+        -- Hung in the sky over the ocean (like the shop preview), so nothing
+        -- but the backdrop is behind or under the party: no floor in shot.
+        -- It used to stand on the docks at 224.0433, -3261.7795, 40.4645.
+        position = vector4(-3975.0, -1355.0, 1600.0, 91.4100),
         fov = 23.0,
         distance = 8.1,
         cameraHeight = 0.61,
@@ -45,11 +48,20 @@ return {
         cameraRight = 0.55,
         weapon = 'WEAPON_CARBINERIFLE',
         backdrop = {
+            -- Animated page painted onto the backdrop. Set to nil for the
+            -- still image below. For your own video/gif instead, put it in
+            -- images/ and use 'web/index.html?src=../images/<file>'.
+            dui = 'web/backdrop.html',
+            duiResolution = { 1920, 1096 },
+            -- Still image, and the fallback if the page fails to load.
             image = 'images/lobby_background.png',
-            behind = 3.0, 
+            behind = 3.0,
             width = 14.0,
             height = 8.0,
-            bottom = -4.0, 
+            bottom = -4.0,
+            -- { r, g, b } to draw a plain floor under the party. Only useful
+            -- if the podium is moved back onto real ground.
+            floor = nil,
         },
         offsets = {
             ['solo'] = defaultPodiumOffset,

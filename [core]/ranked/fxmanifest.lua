@@ -11,10 +11,14 @@ files {
     'config/client.lua',
     'config/shared.lua',
     'web/index.html',
+    'web/backdrop.html',
     -- The lobby backdrop (config/client.lua podium.backdrop), loaded into a
     -- runtime texture on the client.
     'images/*.png',
     'images/*.jpg',
+    'images/*.gif',
+    'images/*.webm',
+    'images/*.mp4',
 }
 
 client_scripts {
