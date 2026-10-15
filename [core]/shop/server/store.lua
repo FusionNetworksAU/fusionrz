@@ -39,6 +39,33 @@ local function currentStoreDay()
     return math.floor(now / 86400)
 end
 
+---When the store next turns over, in milliseconds (the NUI counts down to it
+---with Date.now()).
+---@return integer
+local function nextResetMs()
+    return ((currentStoreDay() + 1) * 86400 + Shop.tuning.dailyResetHour * 3600) * 1000
+end
+
+---Rerolls left today. The count is kept against the store day, so it resets
+---with the rotation without a timer.
+---@param source Source
+---@return integer
+local function refreshesLeft(source)
+    local used = Shop.get(source, Shop.keys.dailyRefreshes, nil)
+    local count = type(used) == 'table' and used.day == currentStoreDay() and tonumber(used.count) or 0
+
+    return math.max(0, Shop.tuning.dailyRefreshLimit - count)
+end
+
+---@param source Source
+local function useRefresh(source)
+    local day = currentStoreDay()
+    local used = Shop.get(source, Shop.keys.dailyRefreshes, nil)
+    local count = type(used) == 'table' and used.day == day and tonumber(used.count) or 0
+
+    Shop.set(source, Shop.keys.dailyRefreshes, { day = day, count = count + 1 })
+end
+
 ---A xorshift over (seed, index) rather than math.random, because the same
 ---seed has to give the same store on every call -- including after a restart,
 ---and without disturbing the global RNG that everything else shares.
@@ -160,6 +187,11 @@ function Shop.pushStore(source)
         },
         featured = buildFeatured(),
         refreshPrice = Shop.tuning.dailyRefreshPrice,
+        -- Both rows turn over at the daily reset (featured is the priciest
+        -- items, so it only changes when the catalogue does, but it is shown
+        -- with the same clock).
+        resetAt = nextResetMs(),
+        refreshesLeft = refreshesLeft(source),
     })
 end
 
@@ -243,9 +275,15 @@ end)
 lib.callback.register('shop:server:refreshDailyStore', function(source)
     local price = Shop.tuning.dailyRefreshPrice
 
+    if refreshesLeft(source) <= 0 then
+        return false, 'No refreshes left today.'
+    end
+
     if not core:RemoveCoins(source, price, 'shop:daily-refresh') then
         return false, 'You cannot afford a refresh.'
     end
+
+    useRefresh(source)
 
     -- Reroll rather than advance: a fresh random seed, kept against today's
     -- day key so tomorrow still rolls over on its own.

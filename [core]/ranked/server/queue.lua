@@ -11,14 +11,22 @@ Ranked = Ranked or {}
 ---@type { id: RankedModeType, label: string, teamSize: integer }[]
 ---Every one of these is ranked hopouts (Ranked.handOffToGamemode hands each
 ---match to hopouts); the id is the team size. `title` is what the mode card
----shows, so it says so -- the bare SOLO/DUO/... read as if hopouts was not
----on offer at all.
+---shows: the mode itself. The size is picked in the "Currently Picked"
+---dropdown above the card, which lists every size (ALL_SIZES below).
 local GAME_MODES = {
-    { id = 'solo', label = 'SOLO', title = 'HOPOUTS 1V1', teamSize = 1 },
-    { id = 'duo', label = 'DUO', title = 'HOPOUTS 2V2', teamSize = 2 },
-    { id = 'trio', label = 'TRIO', title = 'HOPOUTS 3V3', teamSize = 3 },
-    { id = 'squad', label = 'SQUAD', title = 'HOPOUTS 4V4', teamSize = 4 },
+    { id = 'solo', label = 'SOLO', title = 'HOPOUTS', teamSize = 1 },
+    { id = 'duo', label = 'DUO', title = 'HOPOUTS', teamSize = 2 },
+    { id = 'trio', label = 'TRIO', title = 'HOPOUTS', teamSize = 3 },
+    { id = 'squad', label = 'SQUAD', title = 'HOPOUTS', teamSize = 4 },
 }
+
+---What the "Currently Picked" dropdown offers, whichever size is current.
+---Picking one is parties.lua setPartyFormation, which switches the size.
+local ALL_SIZES = {}
+
+for index = 1, #GAME_MODES do
+    ALL_SIZES[index] = GAME_MODES[index].id
+end
 
 ---How far apart two parties' ratings may be, and how fast that widens.
 local BASE_ELO_WINDOW = 150
@@ -65,10 +73,9 @@ function Ranked.pushGameModes(userId)
             rankLabel = Ranked.getRankName(userId, mode.id):upper(),
             teamSize = mode.teamSize,
             maxSquadPlayers = mode.teamSize,
-            -- Each mode is already a fixed squad size, so its one formation is
-            -- itself. buildPartyData falls back to party.mode for the same
-            -- reason, which keeps this button shown as selected.
-            formations = { mode.id },
+            -- The dropdown lists every size; the current one (party.mode, via
+            -- buildPartyData's formation fallback) shows as selected.
+            formations = ALL_SIZES,
             elo = elo,
             -- The bar fills from minElo to maxElo: progress through the tier.
             minElo = Ranked.getTierFloorElo(elo),

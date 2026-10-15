@@ -23,6 +23,10 @@ Shop.tuning = {
     ---Coins to reroll the daily rotation early.
     dailyRefreshPrice = 250,
 
+    ---Rerolls a player gets per store day. The NUI disables the button and
+    ---says "Daily limit reached" at 0.
+    dailyRefreshLimit = 3,
+
     ---Hour the rotation turns over, server local time.
     dailyResetHour = 0,
 

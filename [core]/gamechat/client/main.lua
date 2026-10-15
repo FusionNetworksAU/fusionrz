@@ -122,6 +122,65 @@ RegisterNetEvent('gamechat:removeSuggestion', function(name)
     ui:removeChatSuggestion(name)
 end)
 
+-- The stock chat events. ox_lib's lib.addCommand and other resources announce
+-- their commands (with help text) this way, and nothing here listened, so
+-- none of them showed when typing "/".
+
+---@param name string
+---@param help string?
+---@param params table?
+RegisterNetEvent('chat:addSuggestion', function(name, help, params)
+    ui:addChatSuggestion({ name = name, help = help, params = params })
+end)
+
+---@param suggestions table
+RegisterNetEvent('chat:addSuggestions', function(suggestions)
+    -- ox_lib sends one table for a single command and an array for many.
+    if type(suggestions) == 'table' and suggestions.name then
+        suggestions = { suggestions }
+    end
+
+    ui:addChatSuggestions(suggestions)
+end)
+
+---@param name string
+RegisterNetEvent('chat:removeSuggestion', function(name)
+    ui:removeChatSuggestion(name)
+end)
+
+---Every command registered on this client that a player would type: not the
+---+/- halves of keybinds, not internal "_"-prefixed ones. Server commands
+---come from the server (gamechat server pushSuggestions).
+local function suggestClientCommands()
+    local suggestions = {}
+
+    for _, command in ipairs(GetRegisteredCommands() or {}) do
+        local name = command.name
+
+        if type(name) == 'string' and not name:find('^[%+%-_]') and IsAceAllowed(('command.%s'):format(name)) then
+            suggestions[#suggestions + 1] = { name = '/' .. name, help = '' }
+        end
+    end
+
+    ui:addChatSuggestions(suggestions)
+end
+
+-- Commands are registered as resources start, so scan once the UI is up and
+-- again shortly after, to catch resources that started late.
+CreateThread(function()
+    while not uisReady do
+        Wait(250)
+    end
+
+    suggestClientCommands()
+    Wait(15000)
+    suggestClientCommands()
+end)
+
+AddEventHandler('uis:onReady', function()
+    CreateThread(suggestClientCommands)
+end)
+
 RegisterNetEvent('gamechat:clearMessages', function()
     ui:clearChatMessages()
 end)

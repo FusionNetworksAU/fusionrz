@@ -53,11 +53,47 @@ local function normaliseSuggestion(suggestion)
         end
     end
 
+    local name = suggestion.name
+
+    -- Some senders (ox_lib, the stock chat events) include the slash, others
+    -- pass the bare command name; the list filters on the slash.
+    if name:sub(1, 1) ~= '/' then
+        name = '/' .. name
+    end
+
     return {
-        name = suggestion.name,
+        name = name,
         help = tostring(suggestion.help or ''),
         params = params,
     }
+end
+
+---Suggestions the NUI already has, name -> whether it came with help text.
+---The NUI appends without checking, and the same command arrives from more
+---than one place (the command scan in gamechat, ox_lib's own broadcast, the
+---hand-written list), so it would be listed two or three times.
+---@type table<string, boolean>
+local knownSuggestions = {}
+
+---Drops a suggestion the list already has, unless this one has help text
+---and the stored one does not; then the old one is removed so this replaces it.
+---@param suggestion table
+---@return boolean keep
+local function claimSuggestion(suggestion)
+    local hasHelp = suggestion.help ~= '' or #suggestion.params > 0
+    local known = knownSuggestions[suggestion.name]
+
+    if known ~= nil then
+        if known or not hasHelp then
+            return false
+        end
+
+        SendNUIMessage({ action = 'removeChatSuggestion', data = suggestion.name })
+    end
+
+    knownSuggestions[suggestion.name] = hasHelp
+
+    return true
 end
 
 ---@param data GameChatSuggestion
@@ -72,6 +108,10 @@ local function addChatSuggestion(data)
         Wait(100)
     end
 
+    if not claimSuggestion(data) then
+        return
+    end
+
     SendNUIMessage({ action = 'addChatSuggestion', data = data })
 end
 
@@ -83,33 +123,50 @@ local function addChatSuggestions(data)
         return
     end
 
+    while not playerState.uisReady do
+        Wait(100)
+    end
+
     local suggestions = {}
 
     for index = 1, #data do
         local suggestion = normaliseSuggestion(data[index])
 
-        if suggestion then
+        if suggestion and claimSuggestion(suggestion) then
             suggestions[#suggestions + 1] = suggestion
         end
     end
 
-    while not playerState.uisReady do
-        Wait(100)
+    if #suggestions > 0 then
+        SendNUIMessage({ action = 'addChatSuggestions', data = suggestions })
     end
-
-    SendNUIMessage({ action = 'addChatSuggestions', data = suggestions })
 end
 
 exports('addChatSuggestions', addChatSuggestions)
 
 ---@param name string
 local function removeChatSuggestion(name)
+    if type(name) ~= 'string' then
+        return
+    end
+
+    if name:sub(1, 1) ~= '/' then
+        name = '/' .. name
+    end
+
     while not playerState.uisReady do
         Wait(100)
     end
 
+    knownSuggestions[name] = nil
+
     SendNUIMessage({ action = 'removeChatSuggestion', data = name })
 end
+
+-- A reloaded page starts with an empty list, so everything is sendable again.
+AddEventHandler('uis:onReady', function()
+    knownSuggestions = {}
+end)
 
 exports('removeChatSuggestion', removeChatSuggestion)
 

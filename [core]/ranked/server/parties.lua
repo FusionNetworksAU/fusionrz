@@ -295,9 +295,12 @@ RegisterNetEvent('ranked:server:promotePartyPlayer', function(targetUserId)
     Ranked.pushParty(party)
 end)
 
----@param mode RankedModeType
+---Switches the party to another size (solo/duo/trio/squad). Refused when the
+---party already has more players than the new size holds.
+---@param source Source
+---@param mode string
 ---@return boolean
-lib.callback.register('ranked:server:setPartyMode', function(source, mode)
+local function changePartySize(source, mode)
     local userId = Ranked.getUserId(source)
 
     if not userId or not isValidMode(mode) or not isLeader(userId) then
@@ -311,29 +314,28 @@ lib.callback.register('ranked:server:setPartyMode', function(source, mode)
     end
 
     party.mode = mode
+    -- The size is the formation now; a stale one would show the old size
+    -- as picked.
+    party.formation = nil
 
     Ranked.dequeueParty(party, 'mode changed')
     Ranked.pushParty(party)
 
     return true
+end
+
+---@param mode RankedModeType
+---@return boolean
+lib.callback.register('ranked:server:setPartyMode', function(source, mode)
+    return changePartySize(source, mode)
 end)
 
+---The "Currently Picked" dropdown sends the party size it lists
+---(queue.lua ALL_SIZES), so picking one changes the size.
 ---@param formation RankedFormation
 ---@return boolean
 lib.callback.register('ranked:server:setPartyFormation', function(source, formation)
-    local userId = Ranked.getUserId(source)
-
-    if not userId or type(formation) ~= 'string' or not isLeader(userId) then
-        return false
-    end
-
-    local party = Ranked.getParty(userId)
-
-    party.formation = formation
-
-    Ranked.pushParty(party)
-
-    return true
+    return changePartySize(source, formation)
 end)
 
 ---@param targetUserId integer

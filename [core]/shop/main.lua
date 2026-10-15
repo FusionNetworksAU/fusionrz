@@ -1,26 +1,8 @@
----Shop client.
----
----One file, because the manifest declares one client script. It is in three
----parts: the profile snapshot and the equip exports, the store preview, and
----emotes. Every `shop:` export ui/client/uis/*.lua reaches for is here.
----
----Reads answer out of the snapshot; equips ask the server first and only
----then touch the local ped. Nothing grants an entitlement client-side -- the
----snapshot is a mirror of what the server said, refreshed when it says so.
-
-
 local ui = exports.ui
 local appearance = exports.appearance
 
----config/preview.lua is the camera's own tuning -- the same file the shop's
----preview lighting comes from -- so the zoom and pitch limits are read from
----there rather than restated here.
 PreviewCam = require 'config.preview'
 
----The knobs the config files have no key for. Mirrors shared/shop.lua's
----`Shop.tuning`, which the server reads; the client cannot see that file
----because it is a server script, so the handful of values used on this side
----are repeated. Keep the two in step.
 Tuning = {
     previewCoords = vec4(-3675.2393, -1055.2307, 1600.0, 180.0),
     maleModel = `mp_m_freemode_01`,
@@ -50,11 +32,6 @@ exports('getProfile', function()
     return profile
 end)
 
--- ---------------------------------------------------------------- fan out --
-
----Pushes the snapshot into the NUI through ui's `set*` exports. This is the
----only place that happens: the server never calls them, because they live on
----the client.
 local function applyProfile()
     if not profile then
         return
@@ -101,6 +78,15 @@ end)
 RegisterNetEvent('shop:client:setStore', function(store)
     if type(store) ~= 'table' then
         return
+    end
+
+    if tonumber(store.resetAt) then
+        ui:setShopDailyRefreshTimestamp(store.resetAt)
+        ui:setShopFeaturedRefreshTimestamp(store.resetAt)
+    end
+
+    if tonumber(store.refreshesLeft) then
+        ui:setShopDailyRefreshCount(store.refreshesLeft)
     end
 
     local daily = store.daily
@@ -161,10 +147,6 @@ local function getCatalogueItem(itemId)
     return nil
 end
 
----Drops pieces this ped's model does not have. Drawable numbers are per
----model (the same number is a different piece, or nothing, on the female
----ped), so a colour that does not exist falls back to the piece's first one
----and a piece that does not exist is left off rather than put on broken.
 ---@param ped integer
 ---@param components table[]?
 ---@return table[]
@@ -189,8 +171,6 @@ end
 ---@param clothingId string?
 ---@return boolean success
 exports('equipClothing', function(category, clothingId)
-    -- The server answers with the slot and what to put on (shared/clothing.lua),
-    -- including for the per-slot "default" piece.
     local ok, _, apply = lib.callback.await('shop:server:equipClothing', false, {
         category = category,
         itemId = clothingId,
@@ -206,9 +186,6 @@ exports('equipClothing', function(category, clothingId)
         appearance:setPedComponents(cache.ped, components)
         appearance:setPedProps(cache.ped, apply.props)
 
-        -- Keep the menu's preview ped (if one is up) dressed the same.
-        -- Tattoos are passed through unchanged: appearance keeps them in shared
-        -- state, so an empty list here would drop the player's own.
         exports.shop:setPreviewPedAppearance({
             components = components,
             props = apply.props or {},

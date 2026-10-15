@@ -42,13 +42,18 @@ function CorePlayer.new(source, user, identifiers, tokens)
     }, CorePlayer)
 end
 
+---Shown wherever a player has no avatar (no Discord linked). Only ever
+---handed out here, never stored: self.avatar stays nil, so save() keeps the
+---database column empty and a real avatar still wins once one is set.
+local DEFAULT_AVATAR = 'https://cfx-nui-ui/web/build/cdn/branding/default-avatar.svg'
+
 ---@return table
 function CorePlayer:getClientData()
     return {
         source = self.source,
         userId = self.userId,
         username = self.username,
-        avatar = self.avatar,
+        avatar = self.avatar or DEFAULT_AVATAR,
         country = self.country,
         coins = self.coins,
         metadata = self.metadata,

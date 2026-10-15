@@ -777,13 +777,38 @@ local STAFF_SUGGESTIONS = {
     },
 }
 
+---Every server command this player is allowed to run, as a bare suggestion.
+---Same test the stock chat uses: an unrestricted command is allowed for
+---everyone through its implicit `command.<name>` ace, a restricted one only
+---for the groups it is granted to, so staff commands show only to staff.
+---@param source Source
+---@return GameChatSuggestion[]
+local function registeredCommandSuggestions(source)
+    local suggestions = {}
+
+    for _, command in ipairs(GetRegisteredCommands() or {}) do
+        local name = command.name
+
+        if type(name) == 'string' and not name:find('^[%+%-_]')
+            and IsPlayerAceAllowed(source --[[@as string]], ('command.%s'):format(name)) then
+            suggestions[#suggestions + 1] = { name = '/' .. name, help = '' }
+        end
+    end
+
+    return suggestions
+end
+
 ---@param source Source
 local function pushSuggestions(source)
+    -- Described ones first, so the bare scan below only adds what they miss
+    -- (ui chat.lua drops a repeat without help text).
     TriggerClientEvent('gamechat:addSuggestions', source, SUGGESTIONS)
 
     if isStaff(source) then
         TriggerClientEvent('gamechat:addSuggestions', source, STAFF_SUGGESTIONS)
     end
+
+    TriggerClientEvent('gamechat:addSuggestions', source, registeredCommandSuggestions(source))
 end
 
 -- -------------------------------------------------------------- lifecycle ---

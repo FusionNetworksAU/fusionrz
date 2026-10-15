@@ -553,6 +553,11 @@ RegisterNUICallback('setPartyFormation', function(formation, cb)
 
     local success = lib.callback.await('ranked:server:setPartyFormation', false, formation)
 
+    -- Picking a size smaller than the party is the usual refusal.
+    if not success then
+        exports.ui:notify({ type = 'error', text = 'Your party is too big for that size, or only the leader can change it.' })
+    end
+
     cb(success)
 end)
 

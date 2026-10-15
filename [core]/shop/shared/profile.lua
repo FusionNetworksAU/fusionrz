@@ -31,6 +31,7 @@ Shop.keys = {
     customPlate = 'custom_plate',
     dailySeed = 'daily_store_seed',
     dailyDay = 'daily_store_day',
+    dailyRefreshes = 'daily_store_refreshes',
 }
 
 ---@param source Source

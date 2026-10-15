@@ -133,7 +133,8 @@ lib.callback.register('uis:server:getLeaderboardPlayers', function(_, data)
         players[index] = {
             id = row.id,
             username = row.username,
-            avatar = row.avatar or '',
+            -- Same fallback as core player.lua getClientData; '' drew a broken image.
+            avatar = row.avatar or 'https://cfx-nui-ui/web/build/cdn/branding/default-avatar.svg',
             -- SUM() arrives as a DECIMAL string from the driver. Passing it
             -- straight through shipped strings to the UI, which then sorts and
             -- does K/D arithmetic on them.

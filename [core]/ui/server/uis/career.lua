@@ -16,6 +16,10 @@
 
 local core = exports.core
 
+---For players with no avatar; same as core player.lua getClientData. An empty
+---string drew a broken image.
+local DEFAULT_AVATAR = 'https://cfx-nui-ui/web/build/cdn/branding/default-avatar.svg'
+
 ---Rank tiers, lowest first. These mirror ranked/server/display.lua -- ui
 ---cannot require a server file out of another resource, so the ladder is
 ---restated. Keep the two in step if the tiers ever change.
@@ -311,7 +315,7 @@ local function fetchStandings(mode)
         row.elo = tonumber(row.elo) or DEFAULT_ELO
         row.level = tonumber(row.level) or 1
         row.prestige = tonumber(row.prestige) or 0
-        row.avatar = row.avatar or ''
+        row.avatar = row.avatar or DEFAULT_AVATAR
     end
 
     return rows
@@ -639,7 +643,7 @@ lib.callback.register('career:server:getData', function(source, payload)
     return {
         userId = userId,
         username = profile.username,
-        avatar = profile.avatar,
+        avatar = profile.avatar or DEFAULT_AVATAR,
         country = profile.country,
         playtime = profile.playtime or 0,
         level = level and level.level or 1,

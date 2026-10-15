@@ -691,6 +691,19 @@
     background: var(--fz-accent-hover);
 }
 
+/* party-size row under "Currently Picked": the four sizes share the width
+   (fixed widths pushed SQUAD out of the dock) */
+.fnrz-rk-dock .h-8.origin-top {
+    gap: 0.25rem;
+}
+
+.fnrz-rk-dock .h-8.origin-top > button {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    border-radius: var(--rk-radius-sm);
+}
+
 /* ---------- inputs ---------- */
 
 [data-fnrz-menu] input {
