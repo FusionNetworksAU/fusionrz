@@ -115,6 +115,13 @@ function Shop.getItem(itemId)
     return item and item.enabled and item or nil
 end
 
+---Rarities the NUI has a colour for. It looks the colour up unguarded, so any
+---other value (or none) crashed the whole UI; those fall back to common.
+local NUI_RARITIES = {
+    common = true, uncommon = true, rare = true, epic = true, legendary = true,
+    mythical = true, gang = true, event = true, battlepass = true,
+}
+
 ---The shape the NUI renders an item in, everywhere it renders one.
 ---@param item table
 ---@param amount integer?
@@ -123,13 +130,16 @@ function Shop.toEntry(item, amount)
     return {
         itemId = item.id,
         id = item.id,
-        label = item.label,
+        label = item.label or item.id,
         category = item.category,
         categoryLabel = Shop.categories[item.category],
         image = item.image,
-        rarity = item.rarity,
-        price = item.price,
-        description = item.description,
+        rarity = NUI_RARITIES[item.rarity] and item.rarity or 'common',
+        price = item.price or 0,
+        -- The store cards read the price as `coins` (coins.toLocaleString(),
+        -- unguarded); without it the first card rendered crashed the UI.
+        coins = item.price or 0,
+        description = item.description or '',
         amount = amount or 1,
     }
 end
