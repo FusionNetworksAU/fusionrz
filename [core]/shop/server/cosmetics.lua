@@ -362,7 +362,7 @@ lib.callback.register('shop:server:getPreviewData', function(_, itemId)
         prop = item.prop or data.prop,
         collection = item.collection or data.collection,
         overlay = item.overlay or data.overlay,
-        baseWeapon = item.baseWeapon or data.baseWeapon,
+        baseWeapon = Shop.getBaseWeapon(item) or data.baseWeapon,
         dictionary = item.dictionary or data.dictionary,
         animation = item.animation or data.animation,
         soundName = item.soundName or data.soundName,

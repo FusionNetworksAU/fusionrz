@@ -425,12 +425,14 @@ lib.callback.register('shop:server:enterTestGun', function(source, itemId)
         return false, 'That is not a weapon.'
     end
 
-    if not item.baseWeapon then
+    local baseWeapon = Shop.getBaseWeapon(item)
+
+    if not baseWeapon then
         return false, 'That weapon cannot be tested.'
     end
 
     core:TeleportPlayer(source, Shop.tuning.testGun.coords)
-    core:GiveWeapon(source, item.baseWeapon, Shop.tuning.testGun.ammo)
+    core:GiveWeapon(source, baseWeapon, Shop.tuning.testGun.ammo)
 
     return true
 end)

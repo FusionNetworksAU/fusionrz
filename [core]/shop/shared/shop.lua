@@ -122,11 +122,44 @@ local NUI_RARITIES = {
     mythical = true, gang = true, event = true, battlepass = true,
 }
 
+---The game weapon behind an item. A plain gun row (shop_weapons.sql) has no
+---baseWeapon in its data because its id already is the weapon name, so that
+---is used; skins and other weapon cosmetics name theirs in data.
+---@param item table
+---@return string?
+function Shop.getBaseWeapon(item)
+    if item.baseWeapon then
+        return item.baseWeapon
+    end
+
+    if item.category == 'weapons' and type(item.id) == 'string' and item.id:find('^weapon_') then
+        return item.id:upper()
+    end
+
+    return nil
+end
+
+---Which 3D preview the store page runs for a category (the NUI's own list:
+---outfit, weapon, emote, tattoo, vehicle, smoke, charm). Anything else shows
+---just its picture.
+local PREVIEW_TYPES = {
+    weapons = 'weapon',
+    clothing = 'outfit',
+    outfits = 'outfit',
+    emotes = 'emote',
+    tattoos = 'tattoo',
+    livery = 'vehicle',
+    smokes = 'smoke',
+    charms = 'charm',
+}
+
 ---The shape the NUI renders an item in, everywhere it renders one.
 ---@param item table
 ---@param amount integer?
 ---@return table
 function Shop.toEntry(item, amount)
+    local rarity = NUI_RARITIES[item.rarity] and item.rarity or 'common'
+
     return {
         itemId = item.id,
         id = item.id,
@@ -134,13 +167,28 @@ function Shop.toEntry(item, amount)
         category = item.category,
         categoryLabel = Shop.categories[item.category],
         image = item.image,
-        rarity = NUI_RARITIES[item.rarity] and item.rarity or 'common',
+        rarity = rarity,
         price = item.price or 0,
         -- The store cards read the price as `coins` (coins.toLocaleString(),
         -- unguarded); without it the first card rendered crashed the UI.
         coins = item.price or 0,
         description = item.description or '',
         amount = amount or 1,
+        -- The item page (opened with "View") reads these three unguarded:
+        -- what to preview, the "items included" cards, and the tag chips.
+        -- A bundle would list several; a single item is just itself.
+        previews = {
+            {
+                itemId = item.id,
+                image = item.image,
+                type = PREVIEW_TYPES[item.category] or item.category,
+                tags = {},
+            },
+        },
+        cards = {
+            { image = item.image, rarity = rarity, previewItemId = item.id },
+        },
+        tags = {},
     }
 end
 
