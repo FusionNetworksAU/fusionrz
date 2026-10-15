@@ -99,7 +99,20 @@ RegisterNetEvent('shop:client:setStore', function(store)
         rightItems = type(daily.rightItems) == 'table' and daily.rightItems or {},
     })
 
-    ui:setShopFeaturedItems(type(store.featured) == 'table' and store.featured or {})
+    -- The featured page is two columns, { leftItems, rightItems }, like the
+    -- daily one; a plain list made it read `.filter` of nothing and crash
+    -- the whole UI. The server sends one list, priciest first: split it.
+    local featured = type(store.featured) == 'table' and store.featured or {}
+    local half = math.ceil(#featured / 2)
+    local featuredLeft, featuredRight = {}, {}
+
+    for index = 1, #featured do
+        local column = index <= half and featuredLeft or featuredRight
+
+        column[#column + 1] = featured[index]
+    end
+
+    ui:setShopFeaturedItems({ leftItems = featuredLeft, rightItems = featuredRight })
 end)
 
 RegisterNetEvent('shop:client:setGifts', function(gifts)
