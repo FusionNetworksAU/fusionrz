@@ -163,21 +163,62 @@ end
 ---@param itemId string
 ---@return boolean
 function Shop.owns(source, itemId)
+    -- Free rows (default_clothing.sql) belong to everyone without an
+    -- inventory entry.
+    local item = Shop.getItem(itemId)
+
+    if item and item.free then
+        return true
+    end
+
     return core:OwnsItem(source, itemId) == true
+end
+
+---Free catalogue rows, which every player owns. Sorted so the profile shows
+---them in sort_order.
+---@return table[]
+local function getFreeItems()
+    local free = {}
+
+    for _, item in pairs(core:GetAllItems() or {}) do
+        if item.enabled and item.free then
+            free[#free + 1] = item
+        end
+    end
+
+    table.sort(free, function(a, b)
+        if (a.sortOrder or 0) ~= (b.sortOrder or 0) then
+            return (a.sortOrder or 0) < (b.sortOrder or 0)
+        end
+
+        return a.id < b.id
+    end)
+
+    return free
 end
 
 ---Everything the player owns, as catalogue rows.
 ---@param source Source
 ---@return table[]
 function Shop.getOwnedItems(source)
-    local owned = core:GetUsableTypeIds(source)
+    local owned = core:GetUsableTypeIds(source) or {}
     local items = {}
+    local seen = {}
 
     for index = 1, #owned do
         local item = Shop.getItem(owned[index])
 
-        if item then
+        if item and not seen[item.id] then
+            seen[item.id] = true
             items[#items + 1] = item
+        end
+    end
+
+    local free = getFreeItems()
+
+    for index = 1, #free do
+        if not seen[free[index].id] then
+            items[#items + 1] = free[index]
         end
     end
 

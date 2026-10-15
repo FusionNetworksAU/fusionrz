@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<!-- The plain FNRZ purple: soft light, slow motion, nothing busy. Layout notes: common.js. -->
+		<style>
+			html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #1d0e29; }
+			svg, canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+		</style>
+		<script src="common.js"></script>
+	</head>
+	<body>
+		<svg viewBox="0 0 1920 1096" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+			<defs>
+				<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#3b1d52" />
+					<stop offset="0.4" stop-color="#2b1540" />
+					<stop offset="0.72" stop-color="#1d0e29" />
+					<stop offset="1" stop-color="#140a1c" />
+				</linearGradient>
+				<radialGradient id="centre" cx="0.49" cy="0.55" r="0.3">
+					<stop offset="0" stop-color="#7a3fd0" stop-opacity="0.6" />
+					<stop offset="1" stop-color="#7a3fd0" stop-opacity="0" />
+				</radialGradient>
+				<radialGradient id="floorLight" cx="0.5" cy="0.5" r="0.5">
+					<stop offset="0" stop-color="#a860ff" stop-opacity="0.4" />
+					<stop offset="1" stop-color="#a860ff" stop-opacity="0" />
+				</radialGradient>
+				<linearGradient id="horizon" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#b98cff" stop-opacity="0" />
+					<stop offset="0.5" stop-color="#b98cff" stop-opacity="0.18" />
+					<stop offset="1" stop-color="#b98cff" stop-opacity="0" />
+				</linearGradient>
+				<radialGradient id="vignette" cx="0.5" cy="0.55" r="0.62">
+					<stop offset="0.6" stop-color="#0a0414" stop-opacity="0" />
+					<stop offset="1" stop-color="#0a0414" stop-opacity="0.65" />
+				</radialGradient>
+			</defs>
+
+			<rect width="1920" height="1096" fill="url(#bg)" />
+			<rect width="1920" height="1096" fill="url(#centre)" />
+
+			<!-- Big quiet wordmark behind the party. -->
+			<text x="1040" y="640" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="300" font-style="italic" font-weight="900"
+				fill="none" stroke="#c9a6ff" stroke-opacity="0.07" stroke-width="3" letter-spacing="10">FNRZ</text>
+
+			<!-- A faint horizon line and a floor that is only suggested by light. -->
+			<rect x="0" y="690" width="1920" height="60" fill="url(#horizon)" />
+			<g id="floorLines" stroke="#b98cff" stroke-opacity="0.05" stroke-width="1.5"></g>
+			<ellipse cx="930" cy="772" rx="240" ry="34" fill="url(#floorLight)" />
+
+			<rect width="1920" height="1096" fill="url(#vignette)" />
+		</svg>
+
+		<canvas id="fx"></canvas>
+
+		<script>
+			(function () {
+				var B = window.Backdrop;
+
+				// Floor lines fanning out from a vanishing point behind the party.
+				var lines = document.getElementById('floorLines');
+				for (var i = -12; i <= 12; i++) {
+					B.el('line', { x1: 930 + i * 12, y1: 720, x2: 930 + i * 160, y2: 1096 }, lines);
+				}
+
+				var motes = B.makeFall({
+					rise: true,
+					colour: '#dcbfff',
+					wind: 0,
+					minX: 480,
+					maxX: 1600,
+					layers: [
+						{ count: 40, size: [0.8, 1.6], speed: [8, 16], alpha: 0.45 },
+						{ count: 22, size: [1.6, 2.6], speed: [14, 26], alpha: 0.65 }
+					]
+				});
+
+				// Three soft lights drifting on slow loops behind the party.
+				var orbs = [
+					{ x: 760, y: 470, r: 380, rgb: '109, 51, 214', ax: 90, ay: 50, speed: 0.07, a: 0.22 },
+					{ x: 1220, y: 520, r: 340, rgb: '162, 60, 201', ax: 110, ay: 60, speed: 0.05, a: 0.16 },
+					{ x: 980, y: 640, r: 300, rgb: '61, 43, 184', ax: 80, ay: 40, speed: 0.09, a: 0.18 }
+				];
+
+				B.run(function (ctx, dt, time) {
+					for (var o = 0; o < orbs.length; o++) {
+						var orb = orbs[o];
+						B.glow(ctx,
+							orb.x + Math.sin(time * orb.speed * Math.PI * 2 + o) * orb.ax,
+							orb.y + Math.cos(time * orb.speed * Math.PI * 2 + o * 2) * orb.ay,
+							orb.r, orb.rgb, orb.a);
+					}
+
+					// Rings pulsing out from behind the party.
+					for (var r = 0; r < 3; r++) {
+						var t = ((time + r * 4) % 12) / 12;
+						ctx.globalAlpha = Math.sin(t * Math.PI) * 0.12;
+						ctx.strokeStyle = '#be8cff';
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.ellipse(950, 600, 120 + t * 650, 120 + t * 650, 0, 0, Math.PI * 2);
+						ctx.stroke();
+					}
+					ctx.globalAlpha = 1;
+
+					motes(ctx, dt, time);
+				});
+			})();
+		</script>
+	</body>
+</html>

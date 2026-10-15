@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<!-- Neon city: skyline against a striped sun, searchlights and a moving grid floor. Layout notes: common.js. -->
+		<style>
+			html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #12081f; }
+			svg, canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+		</style>
+		<script src="common.js"></script>
+	</head>
+	<body>
+		<svg viewBox="0 0 1920 1096" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+			<defs>
+				<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#0c0518" />
+					<stop offset="0.35" stop-color="#22103f" />
+					<stop offset="0.55" stop-color="#4a1d6b" />
+					<stop offset="0.64" stop-color="#8a2f7e" />
+				</linearGradient>
+				<linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#ffd27a" />
+					<stop offset="0.5" stop-color="#ff6fa8" />
+					<stop offset="1" stop-color="#b03adf" />
+				</linearGradient>
+				<radialGradient id="sunGlow">
+					<stop offset="0" stop-color="#ff6fa8" stop-opacity="0.4" />
+					<stop offset="1" stop-color="#ff6fa8" stop-opacity="0" />
+				</radialGradient>
+				<mask id="sunStripes">
+					<rect x="700" y="380" width="460" height="320" fill="#fff" />
+					<g fill="#000">
+						<rect x="700" y="560" width="460" height="5" />
+						<rect x="700" y="584" width="460" height="7" />
+						<rect x="700" y="608" width="460" height="9" />
+						<rect x="700" y="632" width="460" height="11" />
+						<rect x="700" y="656" width="460" height="13" />
+					</g>
+				</mask>
+				<linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#2a0f3e" />
+					<stop offset="1" stop-color="#0b0414" />
+				</linearGradient>
+				<linearGradient id="horizonGlow" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#ff5fd0" stop-opacity="0" />
+					<stop offset="0.5" stop-color="#ff5fd0" stop-opacity="0.45" />
+					<stop offset="1" stop-color="#ff5fd0" stop-opacity="0" />
+				</linearGradient>
+				<radialGradient id="shadow">
+					<stop offset="0" stop-color="#000" stop-opacity="0.5" />
+					<stop offset="1" stop-color="#000" stop-opacity="0" />
+				</radialGradient>
+				<radialGradient id="vignette" cx="0.5" cy="0.55" r="0.62">
+					<stop offset="0.6" stop-color="#05020a" stop-opacity="0" />
+					<stop offset="1" stop-color="#05020a" stop-opacity="0.75" />
+				</radialGradient>
+			</defs>
+
+			<rect width="1920" height="1096" fill="url(#sky)" />
+			<g id="stars"></g>
+
+			<!-- Sun sits behind the party, low on the horizon. -->
+			<circle cx="930" cy="560" r="300" fill="url(#sunGlow)" />
+			<circle cx="930" cy="560" r="170" fill="url(#sun)" mask="url(#sunStripes)" />
+
+			<g id="backSkyline" fill="#2a1240"></g>
+			<g id="frontSkyline" fill="#150820"></g>
+			<g id="windows"></g>
+
+			<rect x="0" y="680" width="1920" height="416" fill="url(#floor)" />
+			<rect x="0" y="664" width="1920" height="34" fill="url(#horizonGlow)" />
+			<line x1="0" y1="681" x2="1920" y2="681" stroke="#ff7ae0" stroke-width="2" opacity="0.8" />
+
+			<ellipse cx="930" cy="772" rx="110" ry="18" fill="url(#shadow)" />
+		</svg>
+
+		<canvas id="fx"></canvas>
+
+		<svg viewBox="0 0 1920 1096" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none">
+			<rect width="1920" height="1096" fill="url(#vignette)" />
+		</svg>
+
+		<script>
+			(function () {
+				var B = window.Backdrop;
+				var rand = B.rand;
+
+				var twinklers = B.stars(document.getElementById('stars'), 90, { x: 380, y: 280, w: 1300, h: 200 }, 4);
+
+				var back = document.getElementById('backSkyline');
+				var front = document.getElementById('frontSkyline');
+				var windowsGroup = document.getElementById('windows');
+				var beacons = [];
+
+				function skyline(group, minH, maxH, minW, maxW, lit) {
+					var x = 380;
+					while (x < 1700) {
+						var w = minW + rand() * (maxW - minW);
+						var h = minH + rand() * (maxH - minH);
+						// Keep the middle low so the sun reads behind the party.
+						if (x + w > 820 && x < 1040) {
+							h *= 0.45;
+						}
+						var top = 682 - h;
+						B.el('rect', { x: x, y: top, width: w, height: h }, group);
+						if (rand() < 0.3) {
+							B.el('rect', { x: x + w / 2 - 2, y: top - 30, width: 4, height: 30 }, group);
+							beacons.push({ x: x + w / 2, y: top - 32, phase: rand() * 4 });
+						}
+						if (lit) {
+							for (var wy = top + 10; wy < 672; wy += 14) {
+								for (var wx = x + 6; wx < x + w - 8; wx += 12) {
+									if (rand() < 0.28) {
+										B.el('rect', {
+											x: wx, y: wy, width: 5, height: 7,
+											fill: rand() < 0.7 ? '#ffcf7a' : '#7ad8ff',
+											opacity: (0.35 + rand() * 0.5).toFixed(2)
+										}, windowsGroup);
+									}
+								}
+							}
+						}
+						x += w + rand() * 6;
+					}
+				}
+
+				skyline(back, 140, 300, 40, 90, false);
+				skyline(front, 70, 220, 50, 110, true);
+
+				// Searchlights from behind the skyline.
+				var lights = [
+					{ x: 640, speed: 0.13, phase: 0, rgb: '200, 140, 255' },
+					{ x: 1280, speed: 0.1, phase: 2, rgb: '255, 120, 210' },
+					{ x: 1500, speed: 0.16, phase: 4, rgb: '140, 200, 255' }
+				];
+
+				var rain = B.makeFall({
+					colour: '#c9b4ff',
+					wind: 0,
+					layers: [
+						{ count: 70, size: [0.6, 1.0], speed: [280, 380], alpha: 0.25 },
+						{ count: 30, size: [1.0, 1.4], speed: [420, 520], alpha: 0.35 }
+					]
+				});
+
+				B.run(function (ctx, dt, time) {
+					B.drawTwinkle(ctx, twinklers, time);
+
+					// Searchlight beams, additive, swinging slowly.
+					ctx.globalCompositeOperation = 'lighter';
+					for (var l = 0; l < lights.length; l++) {
+						var light = lights[l];
+						var angle = -Math.PI / 2 + Math.sin(time * light.speed * Math.PI * 2 + light.phase) * 0.5;
+						var len = 700;
+						var spread = 0.05;
+						var grad = ctx.createLinearGradient(light.x, 682, light.x + Math.cos(angle) * len, 682 + Math.sin(angle) * len);
+						grad.addColorStop(0, 'rgba(' + light.rgb + ', 0.22)');
+						grad.addColorStop(1, 'rgba(' + light.rgb + ', 0)');
+						ctx.fillStyle = grad;
+						ctx.beginPath();
+						ctx.moveTo(light.x, 682);
+						ctx.lineTo(light.x + Math.cos(angle - spread) * len, 682 + Math.sin(angle - spread) * len);
+						ctx.lineTo(light.x + Math.cos(angle + spread) * len, 682 + Math.sin(angle + spread) * len);
+						ctx.closePath();
+						ctx.fill();
+					}
+					ctx.globalCompositeOperation = 'source-over';
+
+					// Rooftop beacons blink.
+					for (var b = 0; b < beacons.length; b++) {
+						var beacon = beacons[b];
+						if ((time + beacon.phase) % 2 < 0.5) {
+							B.glow(ctx, beacon.x, beacon.y, 12, '255, 60, 90', 0.9);
+						}
+					}
+
+					// Grid floor: lines fan from the vanishing point behind the
+					// party, horizontals roll toward the camera.
+					ctx.strokeStyle = '#ff6ad5';
+					ctx.lineWidth = 1.5;
+					ctx.globalAlpha = 0.35;
+					ctx.beginPath();
+					for (var i = -20; i <= 20; i++) {
+						ctx.moveTo(930 + i * 14, 682);
+						ctx.lineTo(930 + i * 150, 1096);
+					}
+					ctx.stroke();
+
+					var roll = (time * 0.35) % 1;
+					for (var h = 0; h < 14; h++) {
+						var d = (h + roll) / 14;
+						var y = 682 + Math.pow(d, 2.2) * 414;
+						ctx.globalAlpha = 0.12 + d * 0.4;
+						ctx.beginPath();
+						ctx.moveTo(0, y);
+						ctx.lineTo(1920, y);
+						ctx.stroke();
+					}
+					ctx.globalAlpha = 1;
+
+					rain(ctx, dt, time);
+				});
+			})();
+		</script>
+	</body>
+</html>

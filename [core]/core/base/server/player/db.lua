@@ -319,7 +319,9 @@ function Core.db.getItems()
                 image = row.image,
                 rarity = row.rarity,
                 price = row.price,
-                purchasable = row.purchasable == 1,
+                -- oxmysql hands TINYINT(1) back as a boolean, so `== 1` alone
+                -- was always false and nothing was ever for sale.
+                purchasable = row.purchasable == true or row.purchasable == 1,
                 enabled = true,
                 sortOrder = row.sort_order or 0,
                 ace = Core.buildItemAce(row.category, row.id),
@@ -386,7 +388,7 @@ function Core.db.getInventory(userId)
         entries[index] = {
             id = row.id,
             itemId = row.item_id,
-            equipped = row.equipped == 1,
+            equipped = row.equipped == true or row.equipped == 1,
             acquiredAt = row.acquired_at,
         }
     end

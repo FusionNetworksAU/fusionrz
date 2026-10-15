@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<!-- Christmas: lit tree, presents, snowman, a house in lights and a sleigh across the moon. Layout notes: common.js. -->
+		<style>
+			html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #160c2a; }
+			svg, canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+		</style>
+		<script src="common.js"></script>
+	</head>
+	<body>
+		<svg viewBox="0 0 1920 1096" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+			<defs>
+				<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+					<stop offset="0" stop-color="#0f0a26" />
+					<stop offset="0.38" stop-color="#211552" />
+					<stop offset="0.6" stop-color="#3b2a78" />
+				</linearGradient>
+				<radialGradient id="moonGlow">
+					<stop offset="0" stop-color="#fff6e0" stop-opacity="0.45" />
+					<stop offset="0.35" stop-color="#c8b8ff" stop-opacity="0.14" />
+					<stop offset="1" stop-color="#c8b8ff" stop-opacity="0" />
+				</radialGradient>
+				<linearGradient id="ground" gradientUnits="userSpaceOnUse" x1="0" y1="650" x2="0" y2="1096">
+					<stop offset="0" stop-color="#ece8fa" />
+					<stop offset="0.35" stop-color="#cfc6ec" />
+					<stop offset="1" stop-color="#958ac4" />
+				</linearGradient>
+				<linearGradient id="hills" gradientUnits="userSpaceOnUse" x1="0" y1="590" x2="0" y2="690">
+					<stop offset="0" stop-color="#b9addf" />
+					<stop offset="1" stop-color="#7a6db0" />
+				</linearGradient>
+				<linearGradient id="treeGreen" x1="0" y1="0" x2="1" y2="0">
+					<stop offset="0" stop-color="#0f3a2c" />
+					<stop offset="0.5" stop-color="#17543d" />
+					<stop offset="1" stop-color="#0c3125" />
+				</linearGradient>
+				<radialGradient id="treeLight">
+					<stop offset="0" stop-color="#ffd27a" stop-opacity="0.35" />
+					<stop offset="1" stop-color="#ffd27a" stop-opacity="0" />
+				</radialGradient>
+				<radialGradient id="shadow">
+					<stop offset="0" stop-color="#2a1a45" stop-opacity="0.45" />
+					<stop offset="1" stop-color="#2a1a45" stop-opacity="0" />
+				</radialGradient>
+				<radialGradient id="vignette" cx="0.5" cy="0.55" r="0.62">
+					<stop offset="0.6" stop-color="#08041a" stop-opacity="0" />
+					<stop offset="1" stop-color="#08041a" stop-opacity="0.7" />
+				</radialGradient>
+			</defs>
+
+			<rect width="1920" height="1096" fill="url(#sky)" />
+			<g id="stars"></g>
+
+			<circle cx="700" cy="420" r="190" fill="url(#moonGlow)" />
+			<circle cx="700" cy="420" r="52" fill="#fbf6ff" />
+			<circle cx="686" cy="408" r="8" fill="#e6def7" />
+			<circle cx="716" cy="436" r="6" fill="#ebe4f9" />
+
+			<path fill="url(#hills)" d="M0 680 Q 300 600 640 650 T 1260 630 T 1920 640 L1920 720 L0 720 Z" />
+			<g id="farTrees"></g>
+
+			<path fill="url(#ground)" d="M0 690 Q 380 664 800 684 T 1600 680 T 1920 676 L1920 1096 L0 1096 Z" />
+
+			<!-- Cottage in lights, far left. -->
+			<g id="cottage">
+				<rect x="520" y="620" width="150" height="90" fill="#5b3a52" />
+				<path d="M500 628 L595 560 L690 628 Z" fill="#3a2234" />
+				<path d="M496 626 L595 552 L694 626 Q 690 634 680 630 L595 568 L510 630 Q 498 634 496 626 Z" fill="#f6f2ff" />
+				<rect x="545" y="645" width="34" height="30" fill="#ffd27a" />
+				<rect x="612" y="645" width="34" height="30" fill="#ffd27a" />
+				<path d="M562 645 V675 M545 660 H579 M629 645 V675 M612 660 H646" stroke="#3a2234" stroke-width="3" />
+				<circle cx="595" cy="604" r="12" fill="none" stroke="#2f7a4a" stroke-width="6" />
+				<circle cx="595" cy="616" r="3" fill="#d23a4a" />
+				<ellipse cx="595" cy="712" rx="100" ry="8" fill="#eeeafb" />
+			</g>
+			<g id="roofLights"></g>
+
+			<!-- Snowman, left of the party. -->
+			<g id="snowman">
+				<ellipse cx="760" cy="780" rx="60" ry="10" fill="#9a8fc8" opacity="0.45" />
+				<circle cx="760" cy="745" r="38" fill="#fbfaff" />
+				<circle cx="760" cy="690" r="28" fill="#fbfaff" />
+				<circle cx="760" cy="648" r="20" fill="#fbfaff" />
+				<path d="M742 668 q 18 10 36 0 l 0 8 q -18 10 -36 0 Z" fill="#c8323e" />
+				<path d="M770 668 l 6 30 l 10 -2 l -6 -28 Z" fill="#c8323e" />
+				<rect x="742" y="610" width="36" height="24" fill="#1d1430" />
+				<rect x="734" y="632" width="52" height="6" fill="#1d1430" />
+				<circle cx="753" cy="644" r="2.5" fill="#1d1430" />
+				<circle cx="767" cy="644" r="2.5" fill="#1d1430" />
+				<path d="M760 650 l 16 3 l -16 3 Z" fill="#f08a2a" />
+				<circle cx="760" cy="684" r="3" fill="#1d1430" />
+				<circle cx="760" cy="698" r="3" fill="#1d1430" />
+				<path d="M732 690 l -34 -22 M788 690 l 32 -26" stroke="#5a3a2a" stroke-width="4" stroke-linecap="round" />
+			</g>
+
+			<!-- The tree, right of the party. -->
+			<ellipse cx="1220" cy="620" rx="220" ry="200" fill="url(#treeLight)" />
+			<g id="xmasTree">
+				<rect x="1208" y="720" width="24" height="34" fill="#4a2c1c" />
+				<path d="M1220 440 L1290 560 L1150 560 Z" fill="url(#treeGreen)" />
+				<path d="M1220 500 L1320 640 L1120 640 Z" fill="url(#treeGreen)" />
+				<path d="M1220 570 L1350 728 L1090 728 Z" fill="url(#treeGreen)" />
+				<g fill="#f3f0ff" opacity="0.9">
+					<path d="M1150 560 Q 1220 548 1290 560 Q 1270 566 1250 562 Q 1220 570 1190 562 Q 1170 568 1150 560 Z" />
+					<path d="M1120 640 Q 1220 626 1320 640 Q 1295 647 1270 642 Q 1220 652 1170 642 Q 1145 648 1120 640 Z" />
+					<path d="M1090 728 Q 1220 712 1350 728 Q 1320 736 1290 730 Q 1220 742 1150 730 Q 1120 736 1090 728 Z" />
+				</g>
+				<!-- Tinsel. -->
+				<g fill="none" stroke="#e8c15a" stroke-width="3" opacity="0.8">
+					<path d="M1176 532 Q 1220 552 1268 522" />
+					<path d="M1148 612 Q 1220 640 1300 600" />
+					<path d="M1118 700 Q 1220 730 1330 690" />
+				</g>
+			</g>
+
+			<!-- Presents. -->
+			<g id="presents">
+				<rect x="1100" y="724" width="56" height="44" fill="#c8323e" />
+				<rect x="1124" y="724" width="8" height="44" fill="#f1d27a" />
+				<rect x="1100" y="742" width="56" height="8" fill="#f1d27a" />
+				<rect x="1170" y="738" width="44" height="34" fill="#3b6fd8" />
+				<rect x="1188" y="738" width="8" height="34" fill="#f3f0ff" />
+				<rect x="1248" y="730" width="50" height="40" fill="#2f8a57" />
+				<rect x="1269" y="730" width="8" height="40" fill="#c8323e" />
+				<rect x="1248" y="746" width="50" height="8" fill="#c8323e" />
+				<rect x="1306" y="746" width="34" height="26" fill="#8a4fd8" />
+				<rect x="1319" y="746" width="8" height="26" fill="#f1d27a" />
+				<path d="M1128 724 q -14 -16 -2 -14 q 6 2 2 14 q 6 -12 12 -14 q 10 0 -12 14 Z" fill="#f1d27a" />
+				<path d="M1273 730 q -14 -16 -2 -14 q 6 2 2 14 q 6 -12 12 -14 q 10 0 -12 14 Z" fill="#c8323e" />
+				<ellipse cx="1220" cy="774" rx="150" ry="9" fill="#9a8fc8" opacity="0.35" />
+			</g>
+
+			<g id="nearTrees"></g>
+
+			<ellipse cx="930" cy="772" rx="110" ry="18" fill="url(#shadow)" />
+			<rect width="1920" height="1096" fill="url(#vignette)" />
+		</svg>
+
+		<canvas id="fx"></canvas>
+
+		<script>
+			(function () {
+				var B = window.Backdrop;
+				var rand = B.rand;
+
+				var twinklers = B.stars(document.getElementById('stars'), 130, { x: 380, y: 280, w: 1300, h: 260 }, 5);
+
+				var farTrees = document.getElementById('farTrees');
+				for (var f = 0; f < 40; f++) {
+					B.pine(farTrees, 380 + rand() * 1320, 676 + rand() * 8, 36 + rand() * 36, '#2b2a5a', '#b9b0e0');
+				}
+
+				var nearTrees = document.getElementById('nearTrees');
+				[[500, 790, 300], [1480, 790, 320], [1550, 750, 240]].forEach(function (t) {
+					B.pine(nearTrees, t[0], t[1], t[2], '#14102a', '#f1edfc');
+				});
+
+				var COLOURS = ['255, 70, 80', '80, 200, 120', '255, 210, 90', '90, 150, 255', '220, 120, 255'];
+
+				// Bulbs on the tree, laid along the three tinsel-ish rows and between.
+				var bulbs = [];
+				[[1176, 532, 1268, 522, 552, 6], [1148, 612, 1300, 600, 640, 9], [1118, 700, 1330, 690, 730, 12],
+					[1160, 580, 1282, 580, 586, 7], [1132, 668, 1312, 664, 676, 10]].forEach(function (row, r) {
+					for (var i = 0; i < row[5]; i++) {
+						var t = (i + 0.5) / row[5];
+						var x = row[0] + (row[2] - row[0]) * t;
+						var y = (1 - t) * (1 - t) * row[1] + 2 * (1 - t) * t * row[4] + t * t * row[3];
+						bulbs.push({ x: x, y: y, c: COLOURS[(i + r) % COLOURS.length], phase: rand() * Math.PI * 2, speed: 1.5 + rand() * 2 });
+					}
+				});
+
+				// Lights along the cottage roof edges.
+				var roofBulbs = [];
+				for (var k = 0; k <= 14; k++) {
+					var t2 = k / 14;
+					// Up the left slope (500,628 -> 595,560), down the right to 690,628.
+					var up = t2 <= 0.5;
+					var along = up ? t2 * 2 : (t2 - 0.5) * 2;
+					roofBulbs.push({
+						x: up ? 500 + 95 * along : 595 + 95 * along,
+						y: up ? 628 - 68 * along : 560 + 68 * along,
+						c: COLOURS[k % COLOURS.length]
+					});
+				}
+
+				var snow = B.makeFall();
+
+				// The sleigh crosses the moon every 22s.
+				function drawSleigh(ctx, x, y) {
+					ctx.save();
+					ctx.translate(x, y);
+					ctx.fillStyle = '#120a26';
+					ctx.strokeStyle = '#120a26';
+					ctx.lineWidth = 2;
+					for (var d = 0; d < 4; d++) {
+						var dx = 40 + d * 34;
+						var bob = Math.sin(performance.now() / 160 + d) * 2;
+						ctx.beginPath();
+						ctx.ellipse(dx, bob, 12, 5, 0, 0, Math.PI * 2);
+						ctx.fill();
+						ctx.fillRect(dx + 8, bob - 10, 3, 8);
+						ctx.fillRect(dx - 8, bob + 2, 2, 8);
+						ctx.fillRect(dx + 6, bob + 2, 2, 8);
+						ctx.beginPath();
+						ctx.moveTo(dx + 10, bob - 10);
+						ctx.lineTo(dx + 16, bob - 18);
+						ctx.moveTo(dx + 10, bob - 10);
+						ctx.lineTo(dx + 6, bob - 18);
+						ctx.stroke();
+					}
+					ctx.beginPath();
+					ctx.moveTo(30, 0);
+					ctx.lineTo(-4, 4);
+					ctx.stroke();
+					ctx.beginPath();
+					ctx.moveTo(-40, -2);
+					ctx.lineTo(-4, -2);
+					ctx.lineTo(0, 12);
+					ctx.lineTo(-44, 12);
+					ctx.closePath();
+					ctx.fill();
+					ctx.fillRect(-48, 14, 50, 2);
+					ctx.beginPath();
+					ctx.arc(-22, -8, 7, 0, Math.PI * 2);
+					ctx.fill();
+					ctx.restore();
+				}
+
+				B.run(function (ctx, dt, time) {
+					B.drawTwinkle(ctx, twinklers, time);
+
+					var cycle = (time % 22) / 22;
+					if (cycle < 0.45) {
+						var p = cycle / 0.45;
+						drawSleigh(ctx, 380 + p * 900, 470 - Math.sin(p * Math.PI) * 90);
+					}
+
+					for (var i = 0; i < bulbs.length; i++) {
+						var bulb = bulbs[i];
+						var on = 0.5 + 0.5 * Math.sin(time * bulb.speed + bulb.phase);
+						// Glow only, no hard dot: the tree is out of focus.
+						B.glow(ctx, bulb.x, bulb.y, 12, bulb.c, 0.45 + on * 0.55);
+						B.glow(ctx, bulb.x, bulb.y, 4, '255, 255, 240', 0.3 + on * 0.5);
+					}
+
+					// Roof lights chase along the edge.
+					for (var r = 0; r < roofBulbs.length; r++) {
+						var rb = roofBulbs[r];
+						var lit = Math.floor(time * 3 + r) % 3 === 0 ? 1 : 0.35;
+						B.glow(ctx, rb.x, rb.y, 10, rb.c, 0.7 * lit);
+					}
+
+					// Star on top.
+					var pulse = 0.6 + 0.4 * Math.sin(time * 2);
+					B.glow(ctx, 1220, 432, 70, '255, 220, 120', 0.35 + pulse * 0.3);
+					ctx.save();
+					ctx.translate(1220, 432);
+					ctx.rotate(Math.sin(time * 0.6) * 0.08);
+					ctx.fillStyle = '#ffe08a';
+					ctx.beginPath();
+					for (var s = 0; s < 10; s++) {
+						var rad = s % 2 === 0 ? 18 : 7.5;
+						var ang = -Math.PI / 2 + s * Math.PI / 5;
+						ctx.lineTo(Math.cos(ang) * rad, Math.sin(ang) * rad);
+					}
+					ctx.closePath();
+					ctx.fill();
+					ctx.restore();
+
+					B.glow(ctx, 562, 660, 40, '255, 200, 110', 0.25 + 0.05 * Math.sin(time * 7));
+					B.glow(ctx, 629, 660, 40, '255, 200, 110', 0.25 + 0.05 * Math.sin(time * 6 + 1));
+
+					snow(ctx, dt, time);
+				});
+			})();
+		</script>
+	</body>
+</html>

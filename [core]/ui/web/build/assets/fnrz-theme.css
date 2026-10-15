@@ -442,3 +442,273 @@
 .fnrz-preview canvas {
     mix-blend-mode: lighten;
 }
+
+/* =====================================================================
+ * Refresh (2026-10): tighter, flatter, purple only where it means something.
+ *
+ * What it changes, everywhere [data-fnrz-menu] applies:
+ *  - active tabs are an underline, not a filled neon pill
+ *  - corners are tight (2-4px) instead of 10-20px
+ *  - no glow: icon drop-shadow filters and panel shadows are off
+ *  - the big faded "ghost" word behind page titles is hidden
+ *  - surfaces are near-black with hairline borders; the accent is reserved
+ *    for the active state and the primary action
+ * Everything below overrides rules above; delete this block to roll back.
+ * ===================================================================== */
+
+:root {
+    --fz-accent: #8c4be6;
+    --fz-accent-hover: #9a5ef0;
+    --fz-accent-soft: rgba(140, 75, 230, 0.16);
+    --fz-text: #ece6f2;
+    --fz-muted: #8f8499;
+    --fz-surface: rgba(16, 11, 22, 0.92);
+    --fz-surface-2: rgba(255, 255, 255, 0.035);
+    --fz-line: rgba(255, 255, 255, 0.07);
+    --fz-line-strong: rgba(255, 255, 255, 0.14);
+}
+
+[data-fnrz-menu] {
+    --rk-radius: 4px;
+    --rk-radius-sm: 3px;
+    --rk-panel: rgba(14, 10, 20, 0.9);
+}
+
+/* ---------- corners ---------- */
+
+[data-fnrz-menu] .rounded,
+[data-fnrz-menu] .rounded-md,
+[data-fnrz-menu] .rounded-sm,
+[data-fnrz-menu] .rounded-\[0\.3125rem\],
+[data-fnrz-menu] .rounded-\[0\.375rem\],
+[data-fnrz-menu] .rounded-\[0\.4375rem\] {
+    border-radius: var(--rk-radius-sm);
+}
+
+[data-fnrz-menu] .rounded-t-md {
+    border-top-left-radius: var(--rk-radius-sm);
+    border-top-right-radius: var(--rk-radius-sm);
+}
+
+[data-fnrz-menu] .rounded-b-md {
+    border-bottom-left-radius: var(--rk-radius-sm);
+    border-bottom-right-radius: var(--rk-radius-sm);
+}
+
+/* ---------- no glow ---------- */
+
+/* SVG icons ship with blurred drop-shadow filters; CSS beats the attribute. */
+[data-fnrz-menu] [filter^="url"] {
+    filter: none;
+}
+
+[data-fnrz-menu] .fnrz-rk-header,
+[data-fnrz-menu] .fnrz-rk-dock,
+.fnrz-rk-header,
+.fnrz-rk-dock {
+    box-shadow: none;
+}
+
+/* ghost word behind page titles ("FEATURED", "PAUSE"): kept for layout,
+   made invisible, since the real title is positioned over it */
+[data-fnrz-menu] .text-\[6rem\][style*="text-fill-color"],
+[data-fnrz-menu] .text-\[6rem\][style*="background"] {
+    background: none !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+
+/* ---------- top bar ---------- */
+
+.fnrz-rk-header {
+    border: 1px solid var(--fz-line);
+    border-radius: var(--rk-radius);
+    background: var(--rk-panel);
+}
+
+.fnrz-tabs,
+[data-fnrz-menu] .fnrz-tabs {
+    border-radius: var(--rk-radius);
+    background: transparent;
+    border-color: transparent;
+}
+
+.fnrz-tab,
+[data-fnrz-menu] .fnrz-tab,
+[data-fnrz-menu="ranked"] .fnrz-tab {
+    position: relative;
+    border-radius: 0;
+    color: var(--fz-muted);
+    letter-spacing: 0.06em;
+    transition: color 0.12s ease;
+}
+
+.fnrz-tab:hover:enabled {
+    color: var(--fz-text);
+    background-color: transparent;
+}
+
+.fnrz-tab.is-active,
+.fnrz-tab.is-active:hover:enabled {
+    color: #fff;
+    background-color: transparent;
+}
+
+.fnrz-tab::after {
+    content: "";
+    position: absolute;
+    left: 1.25rem;
+    right: 1.25rem;
+    bottom: 0.3rem;
+    height: 2px;
+    background: var(--fz-accent);
+    transform: scaleX(0);
+    transition: transform 0.15s ease;
+}
+
+.fnrz-tab.is-active::after {
+    transform: scaleX(1);
+}
+
+/* coin balance */
+[data-fnrz-menu="ranked"] .fnrz-rk-header .bg-\[rgba\(255\,255\,255\,0\.1\)\] {
+    border-radius: var(--rk-radius-sm);
+    background: var(--fz-surface-2);
+}
+
+/* ---------- page sub-tabs (Featured/Daily, Skins/Tattoos/Clothing...) ---------- */
+
+[data-fnrz-menu] .h-9.shrink-0.bg-\[rgba\(255\,255\,255\,0\.08\)\] {
+    background-color: transparent;
+    box-shadow: inset 0 -1px 0 var(--fz-line);
+    color: var(--fz-muted);
+}
+
+[data-fnrz-menu] .h-9.shrink-0.bg-\[rgba\(255\,255\,255\,0\.08\)\]:hover:enabled {
+    background-color: var(--fz-surface-2);
+    color: var(--fz-text);
+}
+
+[data-fnrz-menu] .h-9.shrink-0.bg-\[\#9738EA\] {
+    background-color: var(--fz-surface-2);
+    box-shadow: inset 0 -2px 0 var(--fz-accent);
+    color: #fff;
+}
+
+/* segmented toggles (store Featured/Daily): one outlined bar, the chosen
+   half filled with the soft accent and underlined */
+[data-fnrz-menu] .h-12.w-fit.shrink-0.p-1 {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--fz-line);
+}
+
+[data-fnrz-menu] .h-12.w-fit.shrink-0.p-1 > .h-full.bg-\[\#9738EA\] {
+    background-color: var(--fz-accent-soft);
+    box-shadow: inset 0 -2px 0 var(--fz-accent);
+}
+
+/* the arrow buttons either side of them */
+[data-fnrz-menu] .h-9.w-9.shrink-0 {
+    background-color: transparent;
+    border: 1px solid var(--fz-line);
+}
+
+[data-fnrz-menu] .h-9.w-9.shrink-0:hover:enabled {
+    background-color: var(--fz-surface-2);
+    color: #fff;
+}
+
+/* ---------- tiles (profile categories etc.) ---------- */
+
+/* selected tile: tinted with an accent edge, not a solid purple block */
+[data-fnrz-menu] .bg-white.text-black,
+[data-fnrz-menu] .bg-white.text-\[\#0A090E\] {
+    background-color: var(--fz-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--fz-accent);
+    color: #fff;
+}
+
+[data-fnrz-menu] .enabled\:hover\:bg-white:hover:enabled {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* generic purple hover fills -> quiet lift */
+[data-fnrz-menu] .hover\:bg-\[\#9738EA\]:hover,
+[data-fnrz-menu] .enabled\:hover\:bg-\[\#9738EA\]:hover:enabled {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #fff;
+}
+
+/* ---------- lobby ---------- */
+
+/* "LOBBY" tag: a label with a short accent bar, not a glowing pill */
+.fnrz-rk-chip {
+    padding-left: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+
+.fnrz-rk-chip::before {
+    width: 0.75rem;
+    height: 2px;
+    border-radius: 0;
+}
+
+.fnrz-rk-chip .text-\[\#0A090E\],
+.fnrz-rk-chip span {
+    color: var(--fz-muted);
+    letter-spacing: 0.12em;
+}
+
+.fnrz-rk-dock {
+    padding: 0.625rem;
+    border-radius: var(--rk-radius);
+    background: var(--rk-panel);
+}
+
+.fnrz-rk-select,
+.fnrz-rk-mode {
+    border-radius: var(--rk-radius-sm);
+}
+
+.fnrz-rk-select:hover,
+.fnrz-rk-select[data-open] {
+    border-color: var(--fz-line-strong);
+}
+
+.fnrz-rk-mode:hover:enabled {
+    border-color: var(--fz-line-strong);
+}
+
+.fnrz-rk-start {
+    border-radius: var(--rk-radius-sm);
+    background: var(--fz-accent);
+    letter-spacing: 0.04em;
+}
+
+.fnrz-rk-start:hover:enabled {
+    background: var(--fz-accent-hover);
+}
+
+/* ---------- inputs ---------- */
+
+[data-fnrz-menu] input {
+    caret-color: var(--fz-accent);
+}
+
+[data-fnrz-menu] input::placeholder {
+    font-style: normal;
+    letter-spacing: 0.06em;
+}
+
+/* scrollbars: thin */
+[data-fnrz-menu] ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+[data-fnrz-menu] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 0;
+}

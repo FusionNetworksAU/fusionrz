@@ -177,6 +177,22 @@ function Shop.getClothingItemApply(item)
         apply.components[1] = { component_id = tonumber(item.component), drawable = drawable, texture = texture }
     end
 
+    -- Pieces worn with it, e.g. the arms and undershirt a top was made for
+    -- (default_clothing.sql), so equipping it does not leave gaps.
+    if type(item.extra) == 'table' then
+        for index = 1, #item.extra do
+            local part = item.extra[index]
+
+            if type(part) == 'table' and tonumber(part.component) then
+                apply.components[#apply.components + 1] = {
+                    component_id = tonumber(part.component),
+                    drawable = tonumber(part.drawable) or 0,
+                    texture = tonumber(part.texture) or 0,
+                }
+            end
+        end
+    end
+
     return apply
 end
 

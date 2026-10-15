@@ -48,10 +48,12 @@ return {
         cameraRight = 0.55,
         weapon = 'WEAPON_CARBINERIFLE',
         backdrop = {
-            -- Animated page painted onto the backdrop. Set to nil for the
-            -- still image below. For your own video/gif instead, put it in
-            -- images/ and use 'web/index.html?src=../images/<file>'.
-            dui = 'web/backdrop.html',
+            -- Animated page painted onto the backdrop. ?theme= is one of
+            -- normal, halloween, christmas, cabin, city, or auto (October
+            -- halloween, December christmas, Jan-Feb cabin, else normal).
+            -- Set to nil for the still image below. For your own video/gif,
+            -- put it in images/ and use 'web/index.html?src=../images/<file>'.
+            dui = 'web/backdrop.html?theme=auto',
             duiResolution = { 1920, 1096 },
             -- Still image, and the fallback if the page fails to load.
             image = 'images/lobby_background.png',

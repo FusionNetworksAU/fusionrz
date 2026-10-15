@@ -161,6 +161,30 @@ local function getCatalogueItem(itemId)
     return nil
 end
 
+---Drops pieces this ped's model does not have. Drawable numbers are per
+---model (the same number is a different piece, or nothing, on the female
+---ped), so a colour that does not exist falls back to the piece's first one
+---and a piece that does not exist is left off rather than put on broken.
+---@param ped integer
+---@param components table[]?
+---@return table[]
+local function validComponents(ped, components)
+    local valid = {}
+
+    for index = 1, #(components or {}) do
+        local part = components[index]
+        local id, drawable, texture = part.component_id, part.drawable or 0, part.texture or 0
+
+        if IsPedComponentVariationValid(ped, id, drawable, texture) then
+            valid[#valid + 1] = part
+        elseif IsPedComponentVariationValid(ped, id, drawable, 0) then
+            valid[#valid + 1] = { component_id = id, drawable = drawable, texture = 0 }
+        end
+    end
+
+    return valid
+end
+
 ---@param category string?
 ---@param clothingId string?
 ---@return boolean success
@@ -177,14 +201,16 @@ exports('equipClothing', function(category, clothingId)
     end
 
     if type(apply) == 'table' then
-        appearance:setPedComponents(cache.ped, apply.components)
+        local components = validComponents(cache.ped, apply.components)
+
+        appearance:setPedComponents(cache.ped, components)
         appearance:setPedProps(cache.ped, apply.props)
 
         -- Keep the menu's preview ped (if one is up) dressed the same.
         -- Tattoos are passed through unchanged: appearance keeps them in shared
         -- state, so an empty list here would drop the player's own.
         exports.shop:setPreviewPedAppearance({
-            components = apply.components or {},
+            components = components,
             props = apply.props or {},
             tattoos = appearance:getPedTattoos(cache.ped),
         })

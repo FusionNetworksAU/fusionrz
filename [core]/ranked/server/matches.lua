@@ -126,7 +126,7 @@ function Ranked.pushPendingEloAdjustments(userId)
         delta = latest.delta,
         eloBefore = latest.eloBefore,
         eloAfter = latest.eloAfter,
-        won = latest.won == 1,
+        won = latest.won == true or latest.won == 1,
         pending = #rows,
     })
 end

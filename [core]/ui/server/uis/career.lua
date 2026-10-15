@@ -270,7 +270,8 @@ local function fetchHighestWinStreak(userId, mode)
     local best, current = 0, 0
 
     for index = 1, #rows do
-        if rows[index].won == 1 then
+        -- TINYINT(1) comes back from oxmysql as a boolean.
+        if rows[index].won == true or rows[index].won == 1 then
             current += 1
             best = math.max(best, current)
         else
@@ -427,7 +428,7 @@ lib.callback.register('career:server:getMatchHistoryData', function(source, payl
         history[index] = {
             matchId = row.id,
             gamemode = row.mode,
-            won = row.won == 1,
+            won = row.won == true or row.won == 1,
             eloDelta = row.delta,
             eloBefore = row.eloBefore,
             eloAfter = row.eloAfter,
@@ -465,7 +466,7 @@ lib.callback.register('career:server:getMatchDetails', function(source, payload)
     return {
         matchId = row.id,
         gamemode = row.mode,
-        won = row.won == 1,
+        won = row.won == true or row.won == 1,
         eloDelta = row.delta,
         eloBefore = row.eloBefore,
         eloAfter = row.eloAfter,
