@@ -134,15 +134,72 @@ end
 ---than rejected -- which the client sees only as the callback timing out
 ---after five minutes. The catalogue is mostly repeated keys, so it
 ---compresses hard, and core/main.lua unpacks it on the other side.
+---
+---Anything json cannot write (hand items keep their offset and rotation as
+---vec3) made json.encode throw inside the handler, so no reply was ever sent
+---and every client sat out the full timeout. The payload is now a plain copy,
+---built under pcall, and a failure is logged here and answered with nil so the
+---client retries instead of waiting.
+
+---@param value any
+---@return any
+local function plain(value)
+    local kind = type(value)
+
+    if kind == 'vector3' or kind == 'vector4' or kind == 'vector2' then
+        return { x = value.x, y = value.y, z = value.z, w = value.w }
+    end
+
+    if kind == 'table' then
+        local copy = {}
+
+        for key, inner in pairs(value) do
+            copy[key] = plain(inner)
+        end
+
+        return copy
+    end
+
+    if kind == 'function' or kind == 'userdata' or kind == 'thread' then
+        return nil
+    end
+
+    return value
+end
+
+---@type string? the last compressed catalogue, rebuilt only after a refresh
+local cachedPayload = nil
+
+AddEventHandler('core:itemsReady', function()
+    cachedPayload = nil
+end)
+
 lib.callback.register('core:server:getItems', function()
     if not itemsReady then
         return nil
     end
 
-    return LibDeflate:CompressDeflate(json.encode({
-        items = items,
-        handItems = handItems,
-    }))
+    if cachedPayload then
+        return cachedPayload
+    end
+
+    local ok, result = pcall(function()
+        return LibDeflate:CompressDeflate(json.encode({
+            items = plain(items),
+            handItems = plain(handItems),
+        }))
+    end)
+
+    if not ok or type(result) ~= 'string' then
+        lib.print.error(('[core] could not send the item catalogue: %s'):format(result))
+
+        return nil
+    end
+
+    -- Every client asks at once after a refresh; compress once, not per player.
+    cachedPayload = result
+
+    return result
 end)
 
 Core.onReady(function()

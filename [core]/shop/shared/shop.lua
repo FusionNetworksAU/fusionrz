@@ -153,12 +153,41 @@ local PREVIEW_TYPES = {
     charms = 'charm',
 }
 
+---The picture for an item, falling back when its row has none: a gun uses
+---its weapon icon (ui cdn/weapons/<name>.webp, which the rest of the UI
+---already reads), a clothing piece its slot icon. A missing image drew a
+---broken-image box on the card.
+---@param item table
+---@return string?
+function Shop.getItemImage(item)
+    if type(item.image) == 'string' and item.image ~= '' then
+        return item.image
+    end
+
+    local baseWeapon = Shop.getBaseWeapon(item)
+
+    if baseWeapon then
+        return ('weapons/%s.webp'):format(baseWeapon:lower())
+    end
+
+    if item.category == 'clothing' and Shop.getClothingSlotOf then
+        local slot = Shop.getClothingSlotOf(item)
+
+        if slot then
+            return ('clothing/default/%s.svg'):format(slot)
+        end
+    end
+
+    return nil
+end
+
 ---The shape the NUI renders an item in, everywhere it renders one.
 ---@param item table
 ---@param amount integer?
 ---@return table
 function Shop.toEntry(item, amount)
     local rarity = NUI_RARITIES[item.rarity] and item.rarity or 'common'
+    local image = Shop.getItemImage(item)
 
     return {
         itemId = item.id,
@@ -166,7 +195,7 @@ function Shop.toEntry(item, amount)
         label = item.label or item.id,
         category = item.category,
         categoryLabel = Shop.categories[item.category],
-        image = item.image,
+        image = image,
         rarity = rarity,
         price = item.price or 0,
         -- The store cards read the price as `coins` (coins.toLocaleString(),
@@ -180,13 +209,13 @@ function Shop.toEntry(item, amount)
         previews = {
             {
                 itemId = item.id,
-                image = item.image,
+                image = image,
                 type = PREVIEW_TYPES[item.category] or item.category,
                 tags = {},
             },
         },
         cards = {
-            { image = item.image, rarity = rarity, previewItemId = item.id },
+            { image = image, rarity = rarity, previewItemId = item.id },
         },
         tags = {},
     }

@@ -185,8 +185,30 @@ end)
 ---The server fires this with no payload: broadcasting the whole catalogue to
 ---everyone on every refresh is a lot of traffic for a table most clients
 ---already hold, so each client pulls it instead.
+local fetching = false
+
+---Fetches until it works. A single failed fetch used to leave the catalogue
+---empty for the whole session, and ui waits on AreItemsReady forever.
+local function fetchItemsUntilReady()
+    if fetching then
+        return
+    end
+
+    fetching = true
+
+    local delay = 2000
+
+    while not fetchItems() do
+        lib.print.warn(('[core] item catalogue not received, retrying in %ss'):format(delay / 1000))
+        Wait(delay)
+        delay = math.min(delay * 2, 30000)
+    end
+
+    fetching = false
+end
+
 RegisterNetEvent('core:itemsReady', function()
-    CreateThread(fetchItems)
+    CreateThread(fetchItemsUntilReady)
 end)
 
 RegisterNetEvent('core:onItemDeletedById', function(itemId)
@@ -651,7 +673,7 @@ CreateThread(function()
 
     -- The items callback is registered on the server, so it is safe to ask
     -- for the catalogue as soon as the session is up.
-    CreateThread(fetchItems)
+    CreateThread(fetchItemsUntilReady)
 
     local data = lib.callback.await('core:server:requestPlayer', false)
 

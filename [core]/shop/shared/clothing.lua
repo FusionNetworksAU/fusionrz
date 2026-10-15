@@ -225,7 +225,7 @@ function Shop.buildOwnedClothing(source)
                 itemId = item.id,
                 category = slot,
                 label = item.label,
-                imageKey = item.image or ('clothing/default/%s.svg'):format(slot),
+                imageKey = Shop.getItemImage(item) or ('clothing/default/%s.svg'):format(slot),
                 rarity = Shop.config.rarityOrder[item.rarity] and item.rarity or 'common',
                 apply = Shop.getClothingItemApply(item),
             }
