@@ -17,27 +17,19 @@ Shop.categories = require 'config.categories'
 Shop.data = require 'config.data'
 
 Shop.tuning = {
-    ---Items per column of the daily store. The NUI renders it as two columns.
     dailyColumnSize = 4,
 
-    ---Coins to reroll the daily rotation early.
     dailyRefreshPrice = 250,
 
-    ---Rerolls a player gets per store day. The NUI disables the button and
-    ---says "Daily limit reached" at 0.
     dailyRefreshLimit = 3,
 
-    ---Hour the rotation turns over, server local time.
     dailyResetHour = 0,
 
-    ---Cap on the featured strip, which is the catalogue's priciest rows.
     featuredCount = 6,
 
     refunds = {
         startingTokens = 2,
 
-        ---An item can only be handed back inside this window, so a rotation
-        ---cannot be farmed by buying and refunding repeatedly.
         windowSeconds = 7 * 24 * 60 * 60,
 
         ---Categories that can never be refunded, because equipping them

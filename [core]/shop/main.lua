@@ -89,24 +89,17 @@ RegisterNetEvent('shop:client:setStore', function(store)
         ui:setShopDailyRefreshCount(store.refreshesLeft)
     end
 
-    local daily = store.daily
+    local daily = type(store.daily) == 'table' and store.daily or {}
 
-    if type(daily) ~= 'table'
-        or type(daily.leftItems) ~= 'table'
-        or type(daily.rightItems) ~= 'table'
-        or (#daily.leftItems == 0 and #daily.rightItems == 0) then
-        return
-    end
-
+    -- Sent even when empty, so the page shows "nothing here" rather than
+    -- keeping whatever it had.
     ui:setShopDailyItems({
-        title = daily.title or '',
-        leftItems = daily.leftItems,
-        rightItems = daily.rightItems,
+        title = daily.title or 'DAILY ITEMS',
+        leftItems = type(daily.leftItems) == 'table' and daily.leftItems or {},
+        rightItems = type(daily.rightItems) == 'table' and daily.rightItems or {},
     })
 
-    if type(store.featured) == 'table' and #store.featured > 0 then
-        ui:setShopFeaturedItems(store.featured)
-    end
+    ui:setShopFeaturedItems(type(store.featured) == 'table' and store.featured or {})
 end)
 
 RegisterNetEvent('shop:client:setGifts', function(gifts)
@@ -121,10 +114,36 @@ RegisterNetEvent('shop:client:removeGift', function(giftId)
     ui:removeReceivedGift(giftId)
 end)
 
-CreateThread(function()
+---Asks the server to send everything again: profile, store, gifts. What the
+---server pushes at load is lost if the NUI page was not up yet, and after
+---`ensure shop` nothing is pushed at all, which left the store and the
+---profile's clothing empty.
+local function requestSync()
     CoreClient.awaitPlayerLoaded()
 
-    refresh()
+    while not LocalPlayer.state.uisReady do
+        Wait(250)
+    end
+
+    TriggerServerEvent('shop:server:requestSync')
+end
+
+CreateThread(requestSync)
+
+-- The page (re)mounted with empty state.
+AddEventHandler('uis:onReady', function()
+    CreateThread(requestSync)
+end)
+
+-- Opening the lobby or the pause menu: cheap, and the server rate-limits it.
+AddEventHandler('ui:rankedMenuToggled', function(open)
+    if open then
+        CreateThread(requestSync)
+    end
+end)
+
+AddEventHandler('ui:pauseMenuOpened', function()
+    CreateThread(requestSync)
 end)
 
 ---@param itemId string?
